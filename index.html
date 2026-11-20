@@ -6,11 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="FitTakip" />
-  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#09090B" />
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="apple-touch-icon" href="./icon-192.png" />
-  <link rel="icon" type="image/png" href="./icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2309090B'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%23CCFF00'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='%2309090B'%3EFT%3C/text%3E%3C/svg%3E" />
   <title>FitTakip v23 — Sporcu Antrenman Takibi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -647,13 +644,22 @@
             <div id="injuryList" class="space-y-1.5"></div>
           </div>
 
-          <!-- Basic Profile Goals -->
+          <!-- Basic Profile Goals & Rest Timer Setting -->
           <div class="surface-card rounded-3xl p-4 space-y-3">
-            <h3 class="text-sm font-extrabold">Temel Hedefler</h3>
-            <div class="grid grid-cols-3 gap-2">
+            <h3 class="text-sm font-extrabold">Temel Hedefler &amp; Dinlenme</h3>
+            <div class="grid grid-cols-2 gap-2">
               <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Boy (cm)</label><input id="setProfHeight" type="number" placeholder="178" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
-              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Hedef Kilo</label><input id="setProfGoalW" type="number" step="0.1" placeholder="75" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
-              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Su (ml)</label><input id="setProfWaterG" type="number" step="250" placeholder="4000" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
+              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Hedef Kilo (kg)</label><input id="setProfGoalW" type="number" step="0.1" placeholder="75" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
+              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Günlük Su (ml)</label><input id="setProfWaterG" type="number" step="250" placeholder="4000" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
+              <div>
+                <label class="block text-[10px] font-bold text-zinc-400 mb-1">Varsayılan Dinlenme</label>
+                <select id="setProfRestSec" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular">
+                  <option value="60">60 sn (1 dk)</option>
+                  <option value="90">90 sn (1.5 dk)</option>
+                  <option value="120">120 sn (2 dk)</option>
+                  <option value="150">150 sn (2.5 dk)</option>
+                </select>
+              </div>
             </div>
             <button id="btnSaveBasicProfile" type="button" class="w-full py-2.5 rounded-xl btn-volt text-xs font-extrabold">Hedefleri Kaydet</button>
           </div>
@@ -788,18 +794,19 @@
         <div class="px-4 py-3 text-center">
           <p id="sheetExName" class="text-xs font-extrabold truncate"></p>
         </div>
-        <button type="button" data-sheet-act="video" class="w-full py-3.5 text-sm font-semibold text-center">▶ Videoyu İzle / Düzenle</button>
-        <button type="button" data-sheet-act="fillPrev" class="w-full py-3.5 text-sm font-semibold text-center">↺ Son Seansı Doldur</button>
-        <button type="button" data-sheet-act="copySet1" class="w-full py-3.5 text-sm font-semibold text-center">↓ 1. Seti Tüm Setlere Kopyala</button>
-        <button type="button" data-sheet-act="note" class="w-full py-3.5 text-sm font-semibold text-center">📝 Makine / Form Notu</button>
-        <button type="button" data-sheet-act="swap" class="w-full py-3.5 text-sm font-semibold text-center">⇄ Hareket Değiştir (Makine Doluysa)</button>
-        <button type="button" data-sheet-act="history" class="w-full py-3.5 text-sm font-semibold text-center">📊 Son 5 Seans Geçmişi</button>
-        <button type="button" data-sheet-act="superset" class="w-full py-3.5 text-sm font-semibold text-center">🔗 Süperset Bağla / Ayır</button>
+        <button type="button" data-sheet-act="video" class="w-full py-3 text-sm font-semibold text-center">▶ Videoyu İzle / Düzenle</button>
+        <button type="button" data-sheet-act="fillPrev" class="w-full py-3 text-sm font-semibold text-center">↺ Son Seansı Doldur</button>
+        <button type="button" data-sheet-act="copySet1" class="w-full py-3 text-sm font-semibold text-center">↓ 1. Seti Tüm Setlere Kopyala</button>
+        <button type="button" data-sheet-act="weightMode" class="w-full py-3 text-sm font-semibold text-center">⚖️ Ağırlık Modu (kg / VA / +kg / -kg)</button>
+        <button type="button" data-sheet-act="note" class="w-full py-3 text-sm font-semibold text-center">📝 Makine / Form Notu</button>
+        <button type="button" data-sheet-act="swap" class="w-full py-3 text-sm font-semibold text-center">⇄ Hareket Değiştir (Makine Doluysa)</button>
+        <button type="button" data-sheet-act="history" class="w-full py-3 text-sm font-semibold text-center">📊 Son 5 Seans Geçmişi</button>
+        <button type="button" data-sheet-act="superset" class="w-full py-3 text-sm font-semibold text-center">🔗 Süperset Bağla / Ayır</button>
         <div class="grid grid-cols-2 divide-x divide-black/5 dark:divide-white/5">
           <button type="button" data-sheet-act="up" class="py-3 text-xs font-bold">↑ Yukarı Taşı</button>
           <button type="button" data-sheet-act="down" class="py-3 text-xs font-bold">↓ Aşağı Taşı</button>
         </div>
-        <button type="button" data-sheet-act="delete" class="w-full py-3.5 text-sm font-bold text-rose-500 text-center">Hareketi Sil</button>
+        <button type="button" data-sheet-act="delete" class="w-full py-3 text-sm font-bold text-rose-500 text-center">Hareketi Sil</button>
       </div>
       <button id="btnCloseActionSheet" type="button" class="w-full py-3.5 rounded-2xl surface-card text-sm font-extrabold">Vazgeç</button>
     </div>
@@ -845,6 +852,12 @@
       const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
       const DAYS_SHORT = ['PZT','SAL','ÇAR','PER','CUM','CMT','PAZ'];
       const DAYS_TR = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+      const WEIGHT_MODES = [
+        { key: 'kg', label: 'KG', badge: '' },
+        { key: 'bw', label: 'VA', badge: 'Vücut Ağırlığı' },
+        { key: 'plus', label: '+KG', badge: '+Ek Ağırlık' },
+        { key: 'minus', label: '−KG', badge: '−Destek' }
+      ];
 
       // Fixed 4-Day Personal Program with Exact YouTube Videos
       const FIXED_PROGRAMS = {
@@ -856,7 +869,7 @@
             { group: 'Omuz', name: 'COBRA PRESS', video: 'https://www.youtube.com/watch?v=8c6h07Sg18g' },
             { group: 'Göğüs', name: 'INCLINE CHEST PRESS MAC', video: 'https://www.youtube.com/watch?v=T5VMsjSpKts' },
             { group: 'Göğüs', name: 'Seated Chest Press Machine', video: 'https://www.youtube.com/watch?v=65npK4ljz1c' },
-            { group: 'Göğüs', name: 'Assisted Push Up', video: 'https://www.youtube.com/watch?v=9Yoqen-3ygE' },
+            { group: 'Göğüs', name: 'Assisted Push Up', weightMode: 'minus', video: 'https://www.youtube.com/watch?v=9Yoqen-3ygE' },
             { group: 'Omuz', name: 'Dumbbell Lateral Raise', video: 'https://www.youtube.com/watch?v=kGgtmhfCuYQ' },
             { group: 'Kol', name: 'PUSH DOWN', video: 'https://www.youtube.com/watch?v=gc7NCFb-2is' },
             { group: 'Kol', name: 'Cable Triceps Pushdown', video: 'https://www.youtube.com/watch?v=ppbHcxIt9Ac' }
@@ -871,7 +884,7 @@
             { group: 'Sırt', name: 'PRONASYON LAT PULLDOWN', video: 'https://www.youtube.com/watch?v=HwtZvb_3tIo' },
             { group: 'Sırt', name: 'Seated Cable Row', video: 'https://www.youtube.com/watch?v=UCXxvVItLoM' },
             { group: 'Omuz', name: 'FACE PULL', video: 'https://www.youtube.com/watch?v=MGLyNfulwvE' },
-            { group: 'Sırt', name: 'HYPER EXTENSION', video: 'https://www.youtube.com/watch?v=s1WMldYyITk' },
+            { group: 'Sırt', name: 'HYPER EXTENSION', weightMode: 'bw', video: 'https://www.youtube.com/watch?v=s1WMldYyITk' },
             { group: 'Kol', name: 'CABLE MİNİ BAR CURL', video: 'https://www.youtube.com/watch?v=5egH6b5j7NE' },
             { group: 'Kol', name: 'ROPE CROSS CURL', video: 'https://www.youtube.com/watch?v=pGLpKak5mqc' }
           ]
@@ -885,7 +898,7 @@
             { group: 'Göğüs', name: 'SM INCLINE BENCH PRESS', video: 'https://www.youtube.com/watch?v=9eFxNdzQw3w' },
             { group: 'Göğüs', name: 'DUMBELL BENCH PRESS', video: 'https://www.youtube.com/watch?v=qnkX5y99ziU' },
             { group: 'Sırt', name: 'Seated Cable Row', video: 'https://www.youtube.com/watch?v=QsRigMd32AA' },
-            { group: 'Göğüs', name: 'Push Up', video: 'https://www.youtube.com/watch?v=8Q8r0WPk9vQ' },
+            { group: 'Göğüs', name: 'Push Up', weightMode: 'bw', video: 'https://www.youtube.com/watch?v=8Q8r0WPk9vQ' },
             { group: 'Omuz', name: 'DUMBELL UPRIGHT ROW', video: 'https://www.youtube.com/watch?v=T0AE9TBXMWE' },
             { group: 'Omuz', name: 'Dumbbell Lateral Raise', video: 'https://www.youtube.com/watch?v=kGgtmhfCuYQ' },
             { group: 'Kol', name: 'Dumbbell Biceps Curl', video: 'https://www.youtube.com/watch?v=3tv2W1aD4m0' },
@@ -897,7 +910,7 @@
           sub: '8 Sırt / Rack Pull / Kol Hareketi',
           exercises: [
             { group: 'Omuz', name: 'Upright and Rotator Cuff', video: 'https://www.youtube.com/watch?v=8z8_FLRP7pg' },
-            { group: 'Omuz', name: 'Shoulders Tap', video: 'https://www.youtube.com/watch?v=XkSSbhXMpzg' },
+            { group: 'Omuz', name: 'Shoulders Tap', weightMode: 'bw', video: 'https://www.youtube.com/watch?v=XkSSbhXMpzg' },
             { group: 'Sırt', name: 'Prone Lat Pulldown', video: 'https://www.youtube.com/watch?v=hrvdVv1USQo' },
             { group: 'Sırt', name: 'Seated Cable Row', video: 'https://www.youtube.com/watch?v=QsRigMd32AA' },
             { group: 'Sırt', name: 'RACK PULL', video: 'https://www.youtube.com/watch?v=5w4Iyj9KUog' },
@@ -912,9 +925,9 @@
         { group: 'Göğüs', name: 'Bench Press (Barbell)' },
         { group: 'Göğüs', name: 'Incline Dumbbell Press' },
         { group: 'Göğüs', name: 'Cable Fly / Pec Deck' },
-        { group: 'Göğüs', name: 'Chest Dips' },
+        { group: 'Göğüs', name: 'Chest Dips', weightMode: 'bw' },
         { group: 'Sırt', name: 'Barbell Row' },
-        { group: 'Sırt', name: 'Pull-Up (Barfiks)' },
+        { group: 'Sırt', name: 'Pull-Up (Barfiks)', weightMode: 'bw' },
         { group: 'Sırt', name: 'T-Bar Row' },
         { group: 'Sırt', name: 'Deadlift' },
         { group: 'Bacak', name: 'Back Squat' },
@@ -929,15 +942,14 @@
         { group: 'Kol', name: 'EZ-Bar Biceps Curl' },
         { group: 'Kol', name: 'Skull Crusher' },
         { group: 'Karın', name: 'Cable Crunch' },
-        { group: 'Karın', name: 'Hanging Leg Raise' },
-        { group: 'Karın', name: 'Plank' }
+        { group: 'Karın', name: 'Hanging Leg Raise', weightMode: 'bw' },
+        { group: 'Karın', name: 'Plank', weightMode: 'bw' }
       ];
 
-      // Zero fake daily data! Only blueprints.
       function createFreshState() {
         return {
           theme: 'dark',
-          profile: { height: '', goalWeight: '', waterGoal: 4000, saltGoal: 8 },
+          profile: { height: '', goalWeight: '', waterGoal: 4000, saltGoal: 8, defaultRestSec: 90 },
           supplements: [
             { id: 'sup_omega', name: 'Omega-3', dose: '1 kapsül', stock: 30 },
             { id: 'sup_multi', name: 'Multi Vitamin', dose: '1-2 kapsül', stock: 30 },
@@ -947,16 +959,16 @@
           ],
           customTemplates: [],
           customExercises: [],
-          exerciseNotes: {},   // persistent machine/form notes by exercise name
-          exerciseVideos: {},  // custom video overrides by exercise name
-          workouts: {},        // date -> { title, isOffDay, completed, durationSec, exercises: [...] }
-          cardio: {},          // date -> [{ type, min, intensity, incline, kcal }]
-          water: {},           // date -> [ml, ...]
-          salt: {},            // date -> grams
-          suppLogs: {},        // date -> { supId: true }
-          weightLogs: [],      // [{ date, weight, waist, chest, arm }]
-          photos: [],          // [{ id, date, weight, img }]
-          injuries: [],        // [{ id, area, note, active, date }]
+          exerciseNotes: {},
+          exerciseVideos: {},
+          workouts: {},
+          cardio: {},
+          water: {},
+          salt: {},
+          suppLogs: {},
+          weightLogs: [],
+          photos: [],
+          injuries: [],
           fastingStart: null
         };
       }
@@ -971,16 +983,14 @@
       let selectedCardioInt = 'Orta';
       let programDrawerOpen = false;
 
-      // Timers & WakeLock
       let restSec = 0, restInt = null;
       let swSec = 0, swRunning = false, swInt = null;
       let wakeLockSentinel = null;
       let sessionPRCount = 0;
 
-      // Modal targets
       let activeVideoEx = null;
       let activeSheetExIdx = null;
-      let pickerMode = 'add'; // 'add' or 'swap'
+      let pickerMode = 'add';
       let swapTargetIdx = null;
       let weightChartInst = null;
       let perfChartInst = null;
@@ -1065,6 +1075,9 @@
         EXTRA_CATALOG.forEach(push);
         return out;
       }
+      function getWeightModeMeta(modeKey) {
+        return WEIGHT_MODES.find(m => m.key === modeKey) || WEIGHT_MODES[0];
+      }
       function calc1RM(w, r) {
         w = Number(w) || 0; r = Number(r) || 0;
         if (w <= 0 || r <= 0) return 0;
@@ -1082,12 +1095,21 @@
         if (!state.workouts[dateStr]) state.workouts[dateStr] = getDayWorkout(dateStr);
         return state.workouts[dateStr];
       }
+      function getEffectiveLoad(ex, setObj) {
+        const bw = getLatestWeight() || 0;
+        const raw = Number(setObj.weight) || 0;
+        const mode = ex.weightMode || 'kg';
+        if (mode === 'bw') return bw > 0 ? bw : raw;
+        if (mode === 'plus') return bw > 0 ? bw + raw : raw;
+        if (mode === 'minus') return bw > 0 ? Math.max(0, bw - raw) : raw;
+        return raw;
+      }
       function getWorkoutStats(w) {
         let total = 0, done = 0, vol = 0;
         (w.exercises || []).forEach(ex => (ex.sets || []).forEach(s => {
           total++;
           if (s.done) done++;
-          if (s.type !== 'I') vol += (Number(s.weight) || 0) * (Number(s.reps) || 0);
+          if (s.type !== 'I') vol += getEffectiveLoad(ex, s) * (Number(s.reps) || 0);
         }));
         return { total, done, vol: Math.round(vol) };
       }
@@ -1120,7 +1142,6 @@
         return { maxW, max1RM, bestRepAtWeight };
       }
 
-      // Audio beep & vibration
       function playBeep() {
         try { if (navigator.vibrate) navigator.vibrate([120, 80, 120]); } catch (e) {}
         try {
@@ -1134,10 +1155,9 @@
         } catch (e) {}
       }
 
-      // Floating Rest Timer
       function startRestTimer(sec) {
         clearInterval(restInt);
-        restSec = sec || 90;
+        restSec = sec || Number(state.profile.defaultRestSec) || 90;
         const bar = document.getElementById('floatingRestBar');
         bar.classList.remove('hidden');
         updateRestClock();
@@ -1158,7 +1178,6 @@
         document.getElementById('restClockText').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
       }
 
-      // Workout Stopwatch
       function toggleStopwatch() {
         if (swRunning) {
           clearInterval(swInt); swRunning = false;
@@ -1179,7 +1198,6 @@
         dot.className = swRunning ? 'w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse' : 'w-1.5 h-1.5 rounded-full bg-zinc-400';
       }
 
-      // Wake Lock
       async function toggleWakeLock() {
         const btn = document.getElementById('btnWakeLock');
         if (wakeLockSentinel) {
@@ -1207,7 +1225,6 @@
         const dObj = new Date(selectedDate + 'T12:00:00');
         document.getElementById('btnHeaderToday').textContent = `${dObj.getDate()} ${MONTHS_TR[dObj.getMonth()].slice(0,3)}, ${DAYS_TR[dObj.getDay()].slice(0,3)}`;
 
-        // Weekly Calendar Strip
         const monIdx = getMondayIdx(selectedDate);
         const monDate = addDaysISO(selectedDate, -monIdx);
         const strip = document.getElementById('weekStripGrid');
@@ -1235,7 +1252,6 @@
           strip.appendChild(btn);
         }
 
-        // Expandable Monthly Calendar
         const yr = calMonthDate.getFullYear(), mo = calMonthDate.getMonth();
         document.getElementById('calMonthTitle').textContent = `${MONTHS_TR[mo]} ${yr}`;
         const firstDay = new Date(yr, mo, 1).getDay();
@@ -1259,7 +1275,6 @@
           mGrid.appendChild(b);
         }
 
-        // Hero Card
         const dw = getDayWorkout(selectedDate);
         const dayMap = { 0: 'pazartesi', 1: 'sali', 4: 'cuma', 5: 'cumartesi' };
         const suggested = FIXED_PROGRAMS[dayMap[monIdx]];
@@ -1288,7 +1303,6 @@
           offBtn.className = 'px-3 py-1.5 rounded-full surface-elev text-[11px] font-bold text-zinc-400 shrink-0';
         }
 
-        // 3 Metric Tiles
         const wMl = (state.water[selectedDate] || []).reduce((a, b) => a + b, 0);
         const wGoal = Number(state.profile.waterGoal) || 4000;
         document.getElementById('homeWaterVal').textContent = (wMl / 1000).toFixed(1);
@@ -1302,7 +1316,6 @@
         document.getElementById('homeSuppDone').textContent = state.supplements.filter(s => !!sLogs[s.id]).length;
         document.getElementById('homeSuppTotal').textContent = state.supplements.length;
 
-        // Morning Weigh-in & BMI
         const todayWLog = state.weightLogs.find(x => x.date === selectedDate);
         const latestW = getLatestWeight();
         const inpW = document.getElementById('homeWeightInput');
@@ -1345,7 +1358,7 @@
         dw.completed = false;
         dw.title = tpl.title;
         dw.exercises = tpl.exercises.map(e => ({
-          group: e.group, name: e.name, video: e.video, supersetWithNext: false,
+          group: e.group, name: e.name, video: e.video, weightMode: e.weightMode || 'kg', supersetWithNext: false,
           sets: [
             { weight: '', reps: '', type: 'N', rir: '', done: false },
             { weight: '', reps: '', type: 'N', rir: '', done: false },
@@ -1375,11 +1388,9 @@
         document.getElementById('wkTotalVol').textContent = `${stats.vol.toLocaleString('tr-TR')} kg`;
         if (!swRunning) { swSec = dw.durationSec || 0; updateStopwatchUI(); }
 
-        // Focus Mode: auto-collapse program drawer if exercises exist unless user toggled it
         const hasEx = dw.exercises && dw.exercises.length > 0;
         document.getElementById('programDrawer').classList.toggle('hidden', hasEx && !programDrawerOpen);
 
-        // Custom templates
         const tplBox = document.getElementById('customTemplatesList');
         if (!state.customTemplates.length) {
           tplBox.innerHTML = '<span class="text-[11px] text-zinc-500">Henüz özel şablon kaydedilmedi.</span>';
@@ -1396,7 +1407,7 @@
             const d = ensureDayWorkout(selectedDate);
             d.isOffDay = false; d.title = t.title;
             d.exercises = t.exercises.map(ex => ({
-              group: ex.group, name: ex.name, video: ex.video || '', supersetWithNext: false,
+              group: ex.group, name: ex.name, video: ex.video || '', weightMode: ex.weightMode || 'kg', supersetWithNext: false,
               sets: Array.from({ length: ex.setCount || 3 }, () => ({ weight: '', reps: '', type: 'N', rir: '', done: false }))
             }));
             programDrawerOpen = false;
@@ -1408,7 +1419,6 @@
           }));
         }
 
-        // Exercises
         const cont = document.getElementById('exercisesContainer');
         cont.innerHTML = '';
         if (dw.isOffDay) {
@@ -1430,6 +1440,7 @@
           const note = state.exerciseNotes[ex.name] || '';
           const injuryWarn = activeInjuries.find(inj => inj.area === ex.group);
           const isLinked = ex.supersetWithNext || (exIdx > 0 && dw.exercises[exIdx - 1].supersetWithNext);
+          const wm = getWeightModeMeta(ex.weightMode || 'kg');
 
           const card = document.createElement('div');
           card.className = `surface-card rounded-3xl p-4 space-y-3 ${isLinked ? 'superset-border' : ''}`;
@@ -1438,8 +1449,9 @@
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md surface-elev text-zinc-500 dark:text-zinc-300">${esc(ex.group)}</span>
+                  ${wm.badge ? `<button type="button" data-cycle-wmode="${exIdx}" class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-400">${wm.badge}</button>` : ''}
                   ${isLinked ? '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#CCFF00]/15 text-zinc-800 dark:text-[#CCFF00]">Süperset</span>' : ''}
-                  ${prev ? `<span class="text-[10px] font-bold text-zinc-400 tabular">Önceki: ${prev.sets[0]?.weight || 0}×${prev.sets[0]?.reps || 0}</span>` : ''}
+                  ${prev ? `<span class="text-[10px] font-bold text-zinc-400 tabular">Önceki: ${prev.sets[0]?.weight || (ex.weightMode==='bw'?'VA':0)}×${prev.sets[0]?.reps || 0}</span>` : ''}
                 </div>
                 <h4 class="text-base font-extrabold tracking-tight mt-1 leading-snug">${esc(ex.name)}</h4>
                 ${note ? `<p class="text-[11px] text-zinc-400 mt-0.5">📝 ${esc(note)}</p>` : ''}
@@ -1454,7 +1466,7 @@
             <!-- Column Headers -->
             <div class="grid grid-cols-12 gap-1.5 text-[10px] font-bold uppercase text-zinc-400 text-center px-1">
               <span class="col-span-2">Set</span>
-              <span class="col-span-3">KG</span>
+              <span class="col-span-3">${wm.label}</span>
               <span class="col-span-3">Tekrar</span>
               <span class="col-span-2">RIR</span>
               <span class="col-span-2">Onay</span>
@@ -1467,10 +1479,11 @@
                 const ghostR = prev && prev.sets[sIdx] && prev.sets[sIdx].reps ? prev.sets[sIdx].reps : '';
                 const tLbl = s.type === 'I' ? 'I' : s.type === 'D' ? 'D' : s.type === 'T' ? 'T' : String(sIdx + 1);
                 const tCls = s.type === 'I' ? 'bg-amber-500/20 text-amber-400' : s.type === 'D' ? 'bg-purple-500/20 text-purple-400' : s.type === 'T' ? 'bg-rose-500/20 text-rose-400' : 'surface-elev text-zinc-400';
+                const wPh = ex.weightMode === 'bw' ? 'VA' : (ghostW || '—');
                 return `
                 <div class="grid grid-cols-12 gap-1.5 items-center p-1 rounded-2xl transition ${s.done ? 'bg-[#CCFF00]/10 dark:bg-[#CCFF00]/10' : ''}">
                   <button type="button" data-cycle-type="${exIdx}:${sIdx}" class="col-span-2 h-10 rounded-xl text-xs font-black ${tCls}">${tLbl}</button>
-                  <input type="number" step="0.5" min="0" value="${s.weight}" placeholder="${ghostW || '—'}" data-set-inp="weight:${exIdx}:${sIdx}" class="col-span-3 h-10 rounded-xl surface-elev text-center text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00]" />
+                  <input type="number" step="0.5" min="0" value="${s.weight}" placeholder="${wPh}" ${ex.weightMode === 'bw' ? 'disabled' : ''} data-set-inp="weight:${exIdx}:${sIdx}" class="col-span-3 h-10 rounded-xl surface-elev text-center text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00] ${ex.weightMode === 'bw' ? 'opacity-60' : ''}" />
                   <input type="number" step="1" min="0" value="${s.reps}" placeholder="${ghostR || '—'}" data-set-inp="reps:${exIdx}:${sIdx}" class="col-span-3 h-10 rounded-xl surface-elev text-center text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00]" />
                   <button type="button" data-cycle-rir="${exIdx}:${sIdx}" class="col-span-2 h-10 rounded-xl surface-elev text-[11px] font-extrabold text-zinc-400 tabular">${s.rir !== '' ? s.rir : '—'}</button>
                   <button type="button" data-check-set="${exIdx}:${sIdx}" data-gw="${ghostW}" data-gr="${ghostR}" class="col-span-2 h-10 rounded-xl font-black text-sm flex items-center justify-center transition ${s.done ? 'btn-volt' : 'surface-elev text-zinc-400'}">✓</button>
@@ -1478,18 +1491,23 @@
               }).join('')}
             </div>
 
-            <div class="flex items-center justify-between pt-1">
-              <button type="button" data-add-set="${exIdx}" class="text-xs font-bold text-zinc-500 dark:text-zinc-300 px-3 py-1.5 rounded-xl surface-elev">+ Set Ekle</button>
+            <div class="flex items-center justify-between pt-1 gap-1.5">
+              <div class="flex items-center gap-1.5">
+                <button type="button" data-add-set="${exIdx}" class="text-xs font-bold text-zinc-500 dark:text-zinc-300 px-3 py-1.5 rounded-xl surface-elev">+ Set</button>
+                ${ex.sets.length > 1 ? `<button type="button" data-rem-set="${exIdx}" class="text-xs font-bold text-zinc-400 hover:text-rose-400 px-2.5 py-1.5 rounded-xl surface-elev">− Sil</button>` : ''}
+              </div>
               <button type="button" data-copy-set1="${exIdx}" class="text-[11px] font-bold text-zinc-400 hover:text-zinc-900 dark:hover:text-[#CCFF00] px-2.5 py-1.5 rounded-xl">↓ 1. Seti Kopyala</button>
             </div>
           `;
           cont.appendChild(card);
         });
 
-        // Bind Exercise Card Events
         cont.querySelectorAll('[data-play-vid]').forEach(b => b.addEventListener('click', e => {
           const ex = ensureDayWorkout(selectedDate).exercises[Number(e.currentTarget.dataset.playVid)];
           if (ex) openVideoModal(ex.name, ex.video);
+        }));
+        cont.querySelectorAll('[data-cycle-wmode]').forEach(b => b.addEventListener('click', e => {
+          cycleExerciseWeightMode(Number(e.currentTarget.dataset.cycleWmode));
         }));
         cont.querySelectorAll('[data-open-sheet]').forEach(b => b.addEventListener('click', e => {
           activeSheetExIdx = Number(e.currentTarget.dataset.openSheet);
@@ -1523,15 +1541,13 @@
           const dw = ensureDayWorkout(selectedDate);
           const ex = dw.exercises[exI];
           const st = ex.sets[sI];
-          // Auto-fill ghost values if empty!
           if (!st.done) {
-            if (st.weight === '' && btn.dataset.gw) st.weight = btn.dataset.gw;
+            if (ex.weightMode !== 'bw' && st.weight === '' && btn.dataset.gw) st.weight = btn.dataset.gw;
             if (st.reps === '' && btn.dataset.gr) st.reps = btn.dataset.gr;
           }
           st.done = !st.done;
           if (st.done) {
             if (!swRunning) toggleStopwatch();
-            // PR Detection (Weight PR / Rep PR / 1RM PR)
             if (st.type !== 'I' && Number(st.weight) > 0 && Number(st.reps) > 0) {
               const prevBest = getExerciseBestBefore(ex.name, selectedDate);
               const wt = Number(st.weight), rp = Number(st.reps), e1 = calc1RM(wt, rp);
@@ -1546,8 +1562,7 @@
                 showToast(`⚡ YENİ 1RM PR! ${e1} kg`);
               }
             }
-            // Superset check: only start rest timer if NOT supersetWithNext
-            if (!ex.supersetWithNext) startRestTimer(90);
+            if (!ex.supersetWithNext) startRestTimer();
           }
           saveState(); renderWorkout();
         }));
@@ -1556,6 +1571,10 @@
           const last = ex.sets[ex.sets.length - 1] || { weight: '', reps: '' };
           ex.sets.push({ weight: last.weight, reps: last.reps, type: 'N', rir: '', done: false });
           saveState(); renderWorkout();
+        }));
+        cont.querySelectorAll('[data-rem-set]').forEach(b => b.addEventListener('click', e => {
+          const ex = ensureDayWorkout(selectedDate).exercises[Number(e.currentTarget.dataset.remSet)];
+          if (ex.sets.length > 1) { ex.sets.pop(); saveState(); renderWorkout(); }
         }));
         cont.querySelectorAll('[data-copy-set1]').forEach(b => b.addEventListener('click', e => {
           const ex = ensureDayWorkout(selectedDate).exercises[Number(e.currentTarget.dataset.copySet1)];
@@ -1566,6 +1585,17 @@
         }));
 
         renderCardio();
+      }
+
+      function cycleExerciseWeightMode(exIdx) {
+        const ex = ensureDayWorkout(selectedDate).exercises[exIdx];
+        if (!ex) return;
+        const idx = WEIGHT_MODES.findIndex(m => m.key === (ex.weightMode || 'kg'));
+        const next = WEIGHT_MODES[(idx + 1) % WEIGHT_MODES.length];
+        ex.weightMode = next.key;
+        if (next.key === 'bw') ex.sets.forEach(s => { s.weight = ''; });
+        saveState(); renderWorkout();
+        showToast(`Mod: ${next.badge || 'Normal (KG)'}`);
       }
 
       function estimateCardioKcal() {
@@ -1683,7 +1713,6 @@
 
       // ==================== RENDER: TOOLS ====================
       function renderTools() {
-        // BMI
         const hInp = document.getElementById('toolBmiHeight');
         const wInp = document.getElementById('toolBmiWeight');
         if (!hInp.value && state.profile.height) hInp.value = state.profile.height;
@@ -1778,7 +1807,6 @@
           document.getElementById('weightTrendSummary').textContent = 'Kayıt girdikçe 7 günlük trend çizgisi oluşur';
         }
 
-        // Chart.js Weight + 7-Day Moving Average
         const isDark = state.theme !== 'light';
         const txtCol = isDark ? '#A1A1AA' : '#52525B';
         const gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
@@ -1808,7 +1836,6 @@
           }
         });
 
-        // History List
         const hist = document.getElementById('weightLogHistory');
         hist.innerHTML = !sorted.length ? '<p class="text-zinc-500">Kayıt yok.</p>' : [...sorted].reverse().map(x => `
           <div class="flex items-center justify-between p-2 rounded-xl surface-elev">
@@ -1821,7 +1848,6 @@
           saveState(); renderAll();
         }));
 
-        // Progress Photos
         const photos = [...state.photos].sort((a, b) => a.date.localeCompare(b.date));
         document.getElementById('photoEmptyMsg').classList.toggle('hidden', photos.length > 0);
         document.getElementById('photoCompareWrap').classList.toggle('hidden', photos.length === 0);
@@ -1853,7 +1879,6 @@
       }
 
       function renderPerformance() {
-        // Weekly Muscle Group Set Counter
         const monIdx = getMondayIdx(selectedDate);
         const monDate = addDaysISO(selectedDate, -monIdx);
         const counts = { 'Göğüs': 0, 'Sırt': 0, 'Bacak': 0, 'Omuz': 0, 'Kol': 0, 'Karın': 0 };
@@ -1872,7 +1897,6 @@
           return `<div><div class="flex justify-between text-xs font-bold mb-1"><span>${grp}</span><span class="text-zinc-400 tabular">${tag}</span></div><div class="h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden"><div class="h-full ${col} rounded-full transition-all" style="width:${pct}%"></div></div></div>`;
         }).join('');
 
-        // Exercise PR & 1RM Chart
         const exSet = new Set();
         Object.values(state.workouts).forEach(w => (w.exercises || []).forEach(e => exSet.add(e.name)));
         const exArr = Array.from(exSet).sort();
@@ -1927,6 +1951,7 @@
         document.getElementById('setProfHeight').value = state.profile.height || '';
         document.getElementById('setProfGoalW').value = state.profile.goalWeight || '';
         document.getElementById('setProfWaterG').value = state.profile.waterGoal || 4000;
+        document.getElementById('setProfRestSec').value = String(state.profile.defaultRestSec || 90);
 
         const box = document.getElementById('injuryList');
         if (!state.injuries.length) {
@@ -2015,10 +2040,11 @@
             dw.exercises[swapTargetIdx].name = item.name;
             dw.exercises[swapTargetIdx].group = item.group;
             dw.exercises[swapTargetIdx].video = item.video || '';
+            dw.exercises[swapTargetIdx].weightMode = item.weightMode || 'kg';
             showToast(`Hareket değiştirildi: ${item.name}`);
           } else {
             dw.exercises.push({
-              group: item.group, name: item.name, video: item.video || '', supersetWithNext: false,
+              group: item.group, name: item.name, video: item.video || '', weightMode: item.weightMode || 'kg', supersetWithNext: false,
               sets: [
                 { weight: '', reps: '', type: 'N', rir: '', done: false },
                 { weight: '', reps: '', type: 'N', rir: '', done: false },
@@ -2063,7 +2089,6 @@
           selectedDate = todayISO(); calMonthDate = new Date(); renderAll();
         });
 
-        // Today Calendar
         document.getElementById('btnToggleMonthCal').addEventListener('click', () => {
           const w = document.getElementById('monthCalWrap');
           const open = w.classList.toggle('hidden');
@@ -2072,7 +2097,6 @@
         document.getElementById('btnCalPrevMonth').addEventListener('click', () => { calMonthDate.setMonth(calMonthDate.getMonth() - 1); renderToday(); });
         document.getElementById('btnCalNextMonth').addEventListener('click', () => { calMonthDate.setMonth(calMonthDate.getMonth() + 1); renderToday(); });
 
-        // Today Hero & Tiles
         document.getElementById('btnTodayOffDay').addEventListener('click', () => {
           const dw = ensureDayWorkout(selectedDate);
           dw.isOffDay = !dw.isOffDay;
@@ -2094,7 +2118,6 @@
         document.getElementById('tileGoSupp').addEventListener('click', () => switchTab('hydration'));
         document.getElementById('btnHomeOpenBmi').addEventListener('click', () => switchTab('tools'));
 
-        // Quick Morning Weight
         document.getElementById('btnHomeWeightMinus').addEventListener('click', () => {
           const inp = document.getElementById('homeWeightInput');
           inp.value = Math.max(30, Math.round(((Number(inp.value) || 75) - 0.1) * 10) / 10).toFixed(1);
@@ -2111,7 +2134,6 @@
           saveState(); renderAll(); showToast(`${val.toFixed(1)} kg kaydedildi`);
         });
 
-        // Quick Water
         document.querySelectorAll('[data-quick-water]').forEach(b => b.addEventListener('click', e => addWater(Number(e.currentTarget.dataset.quickWater))));
         document.getElementById('btnWaterUndo').addEventListener('click', () => {
           if (state.water[selectedDate] && state.water[selectedDate].length) {
@@ -2133,7 +2155,6 @@
           saveState(); renderAll();
         });
 
-        // Workout Controls
         document.querySelectorAll('.wk-sub-btn').forEach(b => b.addEventListener('click', e => { activeWkSub = e.currentTarget.dataset.wkSub; renderWorkout(); }));
         document.getElementById('wkTitleInput').addEventListener('change', e => { ensureDayWorkout(selectedDate).title = e.target.value.trim(); saveState(); });
         document.getElementById('btnStopwatchToggle').addEventListener('click', toggleStopwatch);
@@ -2151,7 +2172,7 @@
           if (!name || !name.trim()) return;
           state.customTemplates.push({
             title: name.trim(),
-            exercises: dw.exercises.map(e => ({ group: e.group, name: e.name, video: e.video || '', setCount: e.sets.length }))
+            exercises: dw.exercises.map(e => ({ group: e.group, name: e.name, video: e.video || '', weightMode: e.weightMode || 'kg', setCount: e.sets.length }))
           });
           saveState(); renderWorkout(); showToast('Şablon kaydedildi!');
         });
@@ -2176,14 +2197,12 @@
           m.classList.add('hidden'); m.classList.remove('flex');
         });
 
-        // Floating Rest Timer Controls
         document.getElementById('btnRestMinus').addEventListener('click', () => { restSec = Math.max(5, restSec - 15); updateRestClock(); });
         document.getElementById('btnRestPlus').addEventListener('click', () => { restSec += 15; updateRestClock(); });
         document.getElementById('btnRestSkip').addEventListener('click', () => {
           clearInterval(restInt); document.getElementById('floatingRestBar').classList.add('hidden');
         });
 
-        // Cardio Controls
         document.querySelectorAll('.ctype-btn').forEach(b => b.addEventListener('click', e => { selectedCardioType = e.currentTarget.dataset.ctype; estimateCardioKcal(); renderCardio(); }));
         document.querySelectorAll('.cint-btn').forEach(b => b.addEventListener('click', e => { selectedCardioInt = e.currentTarget.dataset.cint; estimateCardioKcal(); renderCardio(); }));
         document.querySelectorAll('[data-cmin]').forEach(b => b.addEventListener('click', e => { document.getElementById('cardioMinInput').value = e.currentTarget.dataset.cmin; estimateCardioKcal(); }));
@@ -2201,7 +2220,6 @@
           saveState(); renderAll(); showToast('Kardiyo kaydedildi!');
         });
 
-        // Action Sheet (•••)
         const closeSheet = () => { const m = document.getElementById('exActionSheet'); m.classList.add('hidden'); m.classList.remove('flex'); };
         document.getElementById('btnCloseActionSheet').addEventListener('click', closeSheet);
         document.getElementById('exActionSheet').addEventListener('click', e => { if (e.target.id === 'exActionSheet') closeSheet(); });
@@ -2220,6 +2238,8 @@
             saveState(); renderWorkout(); showToast('Son seans dolduruldu');
           } else if (act === 'copySet1') {
             if (ex.sets.length) { const s0 = ex.sets[0]; ex.sets.forEach((s, i) => { if (i > 0) { s.weight = s0.weight; s.reps = s0.reps; } }); saveState(); renderWorkout(); }
+          } else if (act === 'weightMode') {
+            cycleExerciseWeightMode(idx);
           } else if (act === 'note') {
             const val = prompt(`${ex.name} — Makine / Form Notu:`, state.exerciseNotes[ex.name] || '');
             if (val !== null) { state.exerciseNotes[ex.name] = val.trim(); saveState(); renderWorkout(); }
@@ -2254,7 +2274,6 @@
           }
         }));
 
-        // Modals Close
         document.getElementById('btnCloseVideoModal').addEventListener('click', closeVideoModal);
         document.getElementById('btnSaveVideoUrl').addEventListener('click', () => {
           if (!activeVideoEx) return;
@@ -2279,7 +2298,6 @@
         });
         document.getElementById('btnCloseExHist').addEventListener('click', () => { const m = document.getElementById('exHistoryModal'); m.classList.add('hidden'); m.classList.remove('flex'); });
 
-        // Tools Listeners
         document.getElementById('toolBmiHeight').addEventListener('input', updateBmiTool);
         document.getElementById('toolBmiWeight').addEventListener('input', updateBmiTool);
         document.getElementById('plateTargetInput').addEventListener('input', updatePlateTool);
@@ -2293,7 +2311,6 @@
         document.getElementById('convTypeSelect').addEventListener('change', updateConvTool);
         document.getElementById('convGramInput').addEventListener('input', updateConvTool);
 
-        // Profile Listeners
         document.querySelectorAll('.prof-sub-btn').forEach(b => b.addEventListener('click', e => { activeProfSub = e.currentTarget.dataset.profSub; renderProfile(); }));
         document.getElementById('btnProfSaveWeight').addEventListener('click', () => {
           const w = Number(document.getElementById('profWeightInput').value);
@@ -2328,7 +2345,6 @@
         });
         document.getElementById('perfExSelect').addEventListener('change', renderPerformance);
 
-        // Injury Log
         document.getElementById('btnAddInjury').addEventListener('click', () => {
           const area = document.getElementById('injAreaSelect').value;
           const note = document.getElementById('injNoteInput').value.trim();
@@ -2337,11 +2353,11 @@
           saveState(); renderSafetyAndSettings(); showToast(`${area} hassasiyeti kaydedildi`);
         });
 
-        // Basic Profile & Backup
         document.getElementById('btnSaveBasicProfile').addEventListener('click', () => {
           state.profile.height = Number(document.getElementById('setProfHeight').value) || '';
           state.profile.goalWeight = Number(document.getElementById('setProfGoalW').value) || '';
           state.profile.waterGoal = Number(document.getElementById('setProfWaterG').value) || 4000;
+          state.profile.defaultRestSec = Number(document.getElementById('setProfRestSec').value) || 90;
           saveState(); renderAll(); showToast('Hedefler kaydedildi!');
         });
         document.getElementById('btnExportJson').addEventListener('click', () => {
@@ -2370,11 +2386,6 @@
             state = createFreshState(); saveState(); renderAll(); showToast('Tüm veriler sıfırlandı');
           }
         });
-      }
-
-      // Register Service Worker for PWA
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
       }
 
       loadState();
