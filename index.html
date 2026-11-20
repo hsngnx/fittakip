@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FitTakip v21 • Athletic Workout & Cardio</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            volt: '#C8FF00',
+            'volt-dark': '#a3d100',
+            cardio: '#FF453A',
+            water: '#38BDF8',
+            obsidian: '#000000',
+            surface: '#121214',
+            'surface-card': '#1C1C1F',
+            'surface-hover': '#2C2C30',
+            borderDark: 'rgba(255, 255, 255, 0.08)',
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    /* iOS Custom Scrollbar & Tabular Numbers */
+    * {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      font-variant-numeric: tabular-nums;
+    }
+    body {
+      background-color: #000000;
+      color: #F3F4F6;
+      user-select: none;
+    }
+    .light body {
+      background-color: #F5F5F7;
+      color: #111113;
+    }
+
+    /* Glassmorphism iOS Tab Bar */
+    .ios-glass {
+      background: rgba(18, 18, 20, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .light .ios-glass {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    /* Hide scrollbars */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Custom Input Styling */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Modal Animation */
+    .sheet-enter {
+      animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-obsidian text-slate-100 min-h-screen flex justify-center antialiased">
+
+  <!-- Mobile Container Shell -->
+  <div class="w-full max-w-[460px] min-h-screen flex flex-col bg-obsidian dark:bg-obsidian light:bg-[#F5F5F7] relative pb-24 shadow-2xl border-x border-borderDark/30">
+
+    <!-- TOP APP BAR -->
+    <header class="sticky top-0 z-30 px-5 pt-4 pb-3 flex items-center justify-between ios-glass">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg bg-volt flex items-center justify-center text-black font-black text-xs tracking-tighter">
+          FT
+        </div>
+        <span class="font-extrabold text-xl tracking-tight text-white dark:text-white light:text-black">FitTakip</span>
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-volt/20 text-volt border border-volt/30 uppercase tracking-wider">v21</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="currentDateDisplay" class="text-xs font-medium text-slate-400">20 Kas, Cuma</span>
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-surface-card dark:bg-surface-card light:bg-slate-200 border border-borderDark flex items-center justify-center text-slate-300 dark:text-slate-300 light:text-slate-700 active:scale-95 transition">
+          <i class="fa-solid fa-moon dark:inline light:hidden text-volt"></i>
+          <i class="fa-solid fa-sun hidden light:inline text-amber-500"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- TAB CONTENT WRAPPER -->
+    <main class="flex-1 px-4 pt-3 pb-6 flex flex-col gap-5 overflow-y-auto">
+
+      <!-- ========================================== -->
+      <!-- TAB 1: BUGÜN (RADICALLY CLEAN LANDING) -->
+      <!-- ========================================== -->
+      <section id="tab-bugun" class="tab-page flex flex-col gap-5">
+
+        <!-- 7-Day Horizontal Calendar Strip -->
+        <div class="bg-surface dark:bg-surface light:bg-white p-3 rounded-2xl border border-borderDark/80 dark:border-borderDark/80 light:border-slate-200 shadow-sm">
+          <div class="flex justify-between items-center mb-2 px-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Haftalık Takvim</span>
+            <button onclick="toggleMonthCalendar()" class="text-xs text-volt dark:text-volt light:text-emerald-600 font-semibold flex items-center gap-1 active:opacity-75">
+              <span>Aylık Takvim</span>
+              <i id="monthChevron" class="fa-solid fa-chevron-down text-[10px]"></i>
+            </button>
+          </div>
+
+          <!-- 7 Days Grid -->
+          <div id="weekDaysGrid" class="grid grid-cols-7 gap-1 text-center">
+            <!-- Dynamically Rendered -->
+          </div>
+
+          <!-- Expandable Monthly Grid -->
+          <div id="monthCalendarGrid" class="hidden mt-3 pt-3 border-t border-borderDark/50 grid grid-cols-7 gap-1 text-center text-xs">
+            <!-- Dynamically Rendered -->
+          </div>
+        </div>
+
+        <!-- HERO TODAY ACTION CARD -->
+        <div id="todayHeroCard" class="bg-gradient-to-br from-[#1C1C1F] to-[#121214] dark:from-[#1C1C1F] dark:to-[#121214] light:from-white light:to-slate-100 p-5 rounded-3xl border border-borderDark dark:border-borderDark light:border-slate-300 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-volt/10 rounded-full blur-2xl pointer-events-none"></div>
+
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <span class="text-[11px] font-bold text-volt uppercase tracking-wider">Bugünün Hedefi</span>
+              <h2 id="todayProgramTitle" class="text-2xl font-black text-white dark:text-white light:text-slate-900 leading-tight mt-0.5">Pazartesi GYM</h2>
+              <p id="todayProgramSub" class="text-xs text-slate-400 mt-1">8 Göğüs / Omuz / Triceps Hareketi</p>
+            </div>
+            <button id="todayOffPill" onclick="toggleTodayOffDay()" class="px-3 py-1 rounded-full text-xs font-bold bg-surface-card border border-borderDark text-slate-400 active:scale-95 transition">
+              Off Day
+            </button>
+          </div>
+
+          <!-- Action CTA Button -->
+          <div class="mt-5 flex gap-2">
+            <button onclick="startTodayWorkout()" class="flex-1 py-3.5 px-4 bg-volt hover:bg-volt-dark text-black font-extrabold rounded-2xl shadow-lg flex items-center justify-center gap-2 text-base active:scale-95 transition">
+              <i class="fa-solid fa-play text-sm"></i>
+              <span id="todayStartBtnText">Antrenmana Başla</span>
+            </button>
+            <button onclick="switchTab('ant'); setCardioSegment();" class="py-3.5 px-4 bg-cardio/20 hover:bg-cardio/30 text-cardio border border-cardio/30 font-extrabold rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition">
+              <i class="fa-solid fa-person-running"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-STAT ATHLETIC SUMMARY STRIP -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <!-- Su Stat -->
+          <div class="bg-surface dark:bg-surface light:bg-white p-3.5 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-water">
+              <i class="fa-solid fa-droplet text-sm"></i>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Su</span>
+            </div>
+            <div class="my-2">
+              <div id="bugunWaterVal" class="text-base font-black text-white dark:text-white light:text-slate-900">1.5 / 4.0L</div>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="addWater(250)" class="flex-1 py-1 rounded-lg bg-water/10 border border-water/30 text-water text-[11px] font-bold active:scale-95 text-center">+250</button>
+              <button onclick="addWater(500)" class="flex-1 py-1 rounded-lg bg-water/10 border border-water/30 text-water text-[11px] font-bold active:scale-95 text-center">+500</button>
+            </div>
+          </div>
+
+          <!-- Kardiyo Stat -->
+          <div onclick="switchTab('ant'); setCardioSegment();" class="bg-surface dark:bg-surface light:bg-white p-3.5 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex flex-col justify-between cursor-pointer active:scale-95 transition">
+            <div class="flex items-center justify-between text-cardio">
+              <i class="fa-solid fa-fire text-sm"></i>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Kardiyo</span>
+            </div>
+            <div class="my-2">
+              <div id="bugunCardioVal" class="text-base font-black text-white dark:text-white light:text-slate-900">0 dk</div>
+              <div id="bugunCardioKcal" class="text-[10px] text-slate-400 font-medium">0 kcal yakıldı</div>
+            </div>
+            <div class="text-[11px] font-semibold text-cardio flex items-center gap-1">
+              <span>Giriş Yap</span>
+              <i class="fa-solid fa-arrow-right text-[9px]"></i>
+            </div>
+          </div>
+
+          <!-- Takviye Stat -->
+          <div onclick="switchTab('su')" class="bg-surface dark:bg-surface light:bg-white p-3.5 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex flex-col justify-between cursor-pointer active:scale-95 transition">
+            <div class="flex items-center justify-between text-emerald-400">
+              <i class="fa-solid fa-pills text-sm"></i>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Takviye</span>
+            </div>
+            <div class="my-2">
+              <div id="bugunSuppVal" class="text-base font-black text-white dark:text-white light:text-slate-900">0 / 5</div>
+              <div class="text-[10px] text-slate-400 font-medium">Tamamlandı</div>
+            </div>
+            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+              <span>Listeyi Aç</span>
+              <i class="fa-solid fa-arrow-right text-[9px]"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPACT BMI / INJURY ALERT STRIP -->
+        <div class="bg-surface dark:bg-surface light:bg-white p-3.5 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-volt/10 text-volt border border-volt/30 flex items-center justify-center font-bold text-sm">
+              <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white dark:text-white light:text-slate-900 flex items-center gap-2">
+                <span>VKİ Durumu: <span id="bugunBmiVal" class="text-volt">23.5</span></span>
+                <span id="bugunBmiStatus" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Normal</span>
+              </div>
+              <p class="text-[11px] text-slate-400">İdeal Kilo Aralığı: 62 - 76 kg</p>
+            </div>
+          </div>
+          <button onclick="switchTab('arac'); openToolModal('bmi');" class="text-xs text-slate-400 hover:text-white p-2">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- INJURY WARNING BADGE IF ANY -->
+        <div id="injuryWarningBanner" class="hidden bg-amber-500/10 border border-amber-500/30 p-3 rounded-2xl flex items-center gap-3">
+          <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg"></i>
+          <div class="text-xs">
+            <span class="font-bold text-amber-400">Hassas Bölge Uyarısı:</span>
+            <span id="injuryWarningText" class="text-slate-300 ml-1">Omuz ağrısı aktif. İlgili hareketlerde dikkatli olun.</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: ANTRENMAN (WEIGHT + CARDIO TOGGLE) -->
+      <!-- ========================================== -->
+      <section id="tab-ant" class="tab-page hidden flex-col gap-4">
+
+        <!-- SEGMENTED CONTROL: WEIGHT vs CARDIO -->
+        <div class="bg-surface-card p-1 rounded-xl border border-borderDark flex">
+          <button id="segBtnWeight" onclick="setWorkoutSegment('weight')" class="flex-1 py-2 text-xs font-extrabold rounded-lg transition bg-volt text-black shadow-sm flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-dumbbell"></i>
+            <span>Ağırlık Antrenmanı</span>
+          </button>
+          <button id="segBtnCardio" onclick="setWorkoutSegment('cardio')" class="flex-1 py-2 text-xs font-bold text-slate-400 hover:text-white rounded-lg transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-person-running"></i>
+            <span>Kardiyo Modülü</span>
+          </button>
+        </div>
+
+        <!-- 2A. AĞIRLIK VIEW -->
+        <div id="viewWeight" class="flex flex-col gap-4">
+
+          <!-- LAUNCHER SECTION (Shown when no workout is active) -->
+          <div id="workoutLauncher" class="flex flex-col gap-4">
+
+            <!-- 4 FIXED BUILT-IN PROGRAMS WITH YOUTUBE VIDEOS -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">4 Sabit Videolu Programım</span>
+                <span class="text-[10px] text-slate-500 font-medium">YouTube Rehberli</span>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2.5">
+                <!-- Pazartesi GYM -->
+                <div class="bg-surface dark:bg-surface light:bg-white p-4 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex justify-between items-center hover:border-volt/50 transition">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-bold text-base text-white dark:text-white light:text-slate-900">Pazartesi GYM</h3>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-volt/20 text-volt">8 Hareket</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Omuz, Göğüs & Kol Odaklı</p>
+                  </div>
+                  <button onclick="launchPresetWorkout('Pazartesi GYM')" class="px-4 py-2 bg-volt text-black font-extrabold text-xs rounded-xl hover:bg-volt-dark active:scale-95 transition">
+                    Başlat
+                  </button>
+                </div>
+
+                <!-- Salı GYM -->
+                <div class="bg-surface dark:bg-surface light:bg-white p-4 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex justify-between items-center hover:border-volt/50 transition">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-bold text-base text-white dark:text-white light:text-slate-900">Salı GYM</h3>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">8 Hareket</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Sırt, Omuz & Biceps Odaklı</p>
+                  </div>
+                  <button onclick="launchPresetWorkout('Salı GYM')" class="px-4 py-2 bg-volt text-black font-extrabold text-xs rounded-xl hover:bg-volt-dark active:scale-95 transition">
+                    Başlat
+                  </button>
+                </div>
+
+                <!-- Cuma GYM -->
+                <div class="bg-surface dark:bg-surface light:bg-white p-4 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex justify-between items-center hover:border-volt/50 transition">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-bold text-base text-white dark:text-white light:text-slate-900">Cuma GYM</h3>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">10 Hareket</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Göğüs, Omuz & Kol Hipertrofi</p>
+                  </div>
+                  <button onclick="launchPresetWorkout('Cuma GYM')" class="px-4 py-2 bg-volt text-black font-extrabold text-xs rounded-xl hover:bg-volt-dark active:scale-95 transition">
+                    Başlat
+                  </button>
+                </div>
+
+                <!-- Cumartesi GYM -->
+                <div class="bg-surface dark:bg-surface light:bg-white p-4 rounded-2xl border border-borderDark dark:border-borderDark light:border-slate-200 flex justify-between items-center hover:border-volt/50 transition">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-bold text-base text-white dark:text-white light:text-slate-900">Cumartesi GYM</h3>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400">8 Hareket</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Sırt, Omuz & Biceps Güç</p>
+                  </div>
+                  <button onclick="launchPresetWorkout('Cumartesi GYM')" class="px-4 py-2 bg-volt text-black font-extrabold text-xs rounded-xl hover:bg-volt-dark active:scale-95 transition">
+                    Başlat
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CUSTOM PROGRAMS & CREATE CUSTOM -->
+            <div class="pt-2">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Özel Programlarım</span>
+                <button onclick="openCreateCustomPlanModal()" class="text-xs text-volt font-bold flex items-center gap-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i>
+                  <span>Yeni Plan Oluştur</span>
+                </button>
+              </div>
+              <div id="customProgramsList" class="flex flex-col gap-2">
+                <!-- Custom programs injected dynamically -->
+                <div class="text-xs text-slate-500 italic p-3 text-center border border-dashed border-borderDark rounded-xl">
+                  Henüz özel program oluşturulmadı.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIVE WORKOUT FOCUS MODE VIEW -->
+          <div id="activeWorkoutView" class="hidden flex-col gap-4">
+
+            <!-- STICKY ACTIVE WORKOUT HEADER -->
+            <div class="sticky top-[57px] z-20 bg-surface/95 backdrop-blur-md p-3.5 rounded-2xl border border-volt/30 shadow-xl flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-volt animate-ping"></span>
+                  <h3 id="activeSessionTitle" class="font-black text-base text-white">Pazartesi GYM</h3>
+                </div>
+                <div class="flex items-center gap-3 mt-1 text-xs font-medium text-slate-400">
+                  <span><i class="fa-regular fa-clock text-volt mr-1"></i><span id="activeTimer">00:00</span></span>
+                  <span>•</span>
+                  <span><i class="fa-solid fa-weight-hanging text-volt mr-1"></i><span id="activeVolume">0 kg</span> Hacim</span>
+                </div>
+              </div>
+
+              <button onclick="finishActiveWorkout()" class="px-4 py-2 bg-volt text-black font-black text-xs rounded-xl hover:bg-volt-dark active:scale-95 shadow-md flex items-center gap-1.5">
+                <i class="fa-solid fa-flag-checkered"></i>
+                <span>Bitir</span>
+              </button>
+            </div>
+
+            <!-- EXERCISE CARDS CONTAINER -->
+            <div id="activeExercisesContainer" class="flex flex-col gap-4">
+              <!-- Dynamically populated Exercise Cards -->
+            </div>
+
+            <!-- ADD EXERCISE BUTTON -->
+            <button onclick="openAddExerciseModal()" class="w-full py-3.5 border-2 border-dashed border-borderDark hover:border-volt/50 text-slate-300 font-bold text-xs rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition">
+              <i class="fa-solid fa-plus text-volt"></i>
+              <span>Antrenmana Hareket Ekle</span>
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- 2B. KARDİYO VIEW -->
+        <div id="viewCardio" class="hidden flex-col gap-5">
+          <!-- Activity Type Selector Pills -->
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 block">Kardiyo Tipi Seçin</span>
+            <div id="cardioTypePills" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              <button onclick="selectCardioType('Eğimli Yürüyüş')" class="cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-volt text-black whitespace-nowrap shadow-sm">Eğimli Yürüyüş</button>
+              <button onclick="selectCardioType('Koşu Bandı')" class="cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-surface-card border border-borderDark text-slate-300 whitespace-nowrap">Koşu Bandı</button>
+              <button onclick="selectCardioType('Bisiklet')" class="cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-surface-card border border-borderDark text-slate-300 whitespace-nowrap">Bisiklet</button>
+              <button onclick="selectCardioType('Eliptik')" class="cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-surface-card border border-borderDark text-slate-300 whitespace-nowrap">Eliptik</button>
+              <button onclick="selectCardioType('Kürek')" class="cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-surface-card border border-borderDark text-slate-300 whitespace-nowrap">Kürek</button>
+              <button onclick="selectCardioType('Merdiven')" class="cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-surface-card border border-borderDark text-slate-300 whitespace-nowrap">Merdiven (StairMaster)</button>
+              <button onclick="selectCardioType('Yüzme / Açık Hava')" class="cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-surface-card border border-borderDark text-slate-300 whitespace-nowrap">Yüzme / Açık Hava</button>
+            </div>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="bg-surface dark:bg-surface light:bg-white p-3.5 rounded-2xl border border-borderDark">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 block">Hızlı Hazır Şablonlar</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="applyCardioPreset(30, 4.8, 12)" class="p-2 bg-surface-card border border-borderDark rounded-xl text-left active:scale-95 transition">
+                <div class="text-xs font-bold text-cardio">12-3-30</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">30dk • %12 • 4.8km/h</div>
+              </button>
+              <button onclick="applyCardioPreset(20, 10.0, 0)" class="p-2 bg-surface-card border border-borderDark rounded-xl text-left active:scale-95 transition">
+                <div class="text-xs font-bold text-volt">20dk HIIT</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">20dk • 10km/h</div>
+              </button>
+              <button onclick="applyCardioPreset(45, 6.0, 2)" class="p-2 bg-surface-card border border-borderDark rounded-xl text-left active:scale-95 transition">
+                <div class="text-xs font-bold text-sky-400">45dk Zone 2</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">45dk • 6.0km/h</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- LIVE CARDIO STOPWATCH -->
+          <div class="bg-surface p-4 rounded-2xl border border-cardio/30 text-center flex flex-col items-center">
+            <span class="text-[11px] font-bold text-cardio uppercase tracking-widest">Canlı Kardiyo Kronometresi</span>
+            <div id="cardioStopwatchDisplay" class="text-4xl font-black text-white my-2 tracking-wider">00:00:00</div>
+            <div class="flex gap-2">
+              <button id="cardioTimerStartBtn" onclick="toggleCardioStopwatch()" class="px-5 py-2 bg-cardio text-white font-extrabold text-xs rounded-xl active:scale-95 shadow">
+                Başlat
+              </button>
+              <button onclick="resetCardioStopwatch()" class="px-4 py-2 bg-surface-card border border-borderDark text-slate-300 text-xs font-bold rounded-xl active:scale-95">
+                Sıfırla
+              </button>
+            </div>
+          </div>
+
+          <!-- INPUT FORM -->
+          <div class="bg-surface dark:bg-surface light:bg-white p-4 rounded-2xl border border-borderDark flex flex-col gap-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-[11px] font-bold text-slate-400 block mb-1">Süre (Dakika)</label>
+                <input id="cardioDurationInput" type="number" value="30" oninput="recalcCardioKcal()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2.5 text-base font-bold text-white focus:outline-none focus:border-cardio" />
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-slate-400 block mb-1">Hız (km/saat)</label>
+                <input id="cardioSpeedInput" type="number" step="0.1" value="5.0" oninput="recalcCardioKcal()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2.5 text-base font-bold text-white focus:outline-none focus:border-cardio" />
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-slate-400 block mb-1">Eğim (%)</label>
+                <input id="cardioInclineInput" type="number" value="5" oninput="recalcCardioKcal()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2.5 text-base font-bold text-white focus:outline-none focus:border-cardio" />
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-slate-400 block mb-1">Mesafe (km)</label>
+                <input id="cardioDistanceInput" type="number" step="0.1" value="2.5" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2.5 text-base font-bold text-white focus:outline-none focus:border-cardio" />
+              </div>
+            </div>
+
+            <!-- ACSM Formula Estimated Kcal Banner -->
+            <div class="bg-surface-card p-3 rounded-xl border border-borderDark flex justify-between items-center">
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase">Hesaplanan Kalori (ACSM)</span>
+                <div id="cardioKcalDisplay" class="text-xl font-black text-cardio">215 kcal</div>
+              </div>
+              <i class="fa-solid fa-fire-flame-curved text-cardio text-2xl"></i>
+            </div>
+
+            <button onclick="saveCardioSession()" class="w-full py-3.5 bg-cardio text-white font-black text-sm rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-check"></i>
+              <span>Kardiyoyu Kaydet</span>
+            </button>
+          </div>
+
+          <!-- TODAY'S CARDIO LOG LIST -->
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 block">Bugün Kaydedilen Kardiyolar</span>
+            <div id="todayCardioLogsList" class="flex flex-col gap-2">
+              <!-- Cardio entries populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: SU & TAKVİYE -->
+      <!-- ========================================== -->
+      <section id="tab-su" class="tab-page hidden flex-col gap-5">
+
+        <!-- HYDRATION CARD -->
+        <div class="bg-surface dark:bg-surface light:bg-white p-5 rounded-3xl border border-borderDark flex flex-col items-center relative overflow-hidden">
+          <div class="w-full flex justify-between items-center mb-4">
+            <span class="text-xs font-bold text-water uppercase tracking-wider">Günlük Su Takibi</span>
+            <button onclick="undoWater()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+              <i class="fa-solid fa-rotate-left text-[10px]"></i>
+              <span>Geri Al</span>
+            </button>
+          </div>
+
+          <!-- CIRCULAR HYDRATION RING -->
+          <div class="relative w-44 h-44 flex items-center justify-center my-2">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" class="text-surface-card" fill="transparent" />
+              <circle id="waterProgressRing" cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" class="text-water transition-all duration-500 ease-out" stroke-dasharray="264" stroke-dashoffset="132" stroke-linecap="round" fill="transparent" />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <i class="fa-solid fa-droplet text-water text-xl mb-1"></i>
+              <span id="waterRingCurrent" class="text-2xl font-black text-white">1850</span>
+              <span id="waterRingTarget" class="text-[11px] text-slate-400 font-semibold">/ 4000 ml</span>
+            </div>
+          </div>
+
+          <!-- QUICK ADD BUTTONS -->
+          <div class="grid grid-cols-3 gap-3 w-full mt-4">
+            <button onclick="addWater(250)" class="py-3 rounded-2xl bg-water/10 border border-water/30 text-water font-extrabold text-sm active:scale-95 transition flex flex-col items-center">
+              <span>+250 ml</span>
+              <span class="text-[10px] font-normal opacity-70">1 Bardak</span>
+            </button>
+            <button onclick="addWater(500)" class="py-3 rounded-2xl bg-water/10 border border-water/30 text-water font-extrabold text-sm active:scale-95 transition flex flex-col items-center">
+              <span>+500 ml</span>
+              <span class="text-[10px] font-normal opacity-70">Küçük Şişe</span>
+            </button>
+            <button onclick="addWater(750)" class="py-3 rounded-2xl bg-water/10 border border-water/30 text-water font-extrabold text-sm active:scale-95 transition flex flex-col items-center">
+              <span>+750 ml</span>
+              <span class="text-[10px] font-normal opacity-70">Spor Matarası</span>
+            </button>
+          </div>
+
+          <!-- SALT / ELECTROLYTE BAR -->
+          <div class="w-full mt-5 pt-4 border-t border-borderDark flex flex-col gap-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-slate-300">Tuz & Elektrolit (Hedef: 8g)</span>
+              <span id="saltTextVal" class="font-bold text-amber-400">4.5 / 8.0 g</span>
+            </div>
+            <div class="w-full h-2 bg-surface-card rounded-full overflow-hidden">
+              <div id="saltProgressBar" class="h-full bg-amber-400 rounded-full w-[56%] transition-all"></div>
+            </div>
+            <div class="flex gap-2 mt-1">
+              <button onclick="addSalt(1)" class="flex-1 py-1 rounded bg-surface-card border border-borderDark text-[11px] font-bold text-slate-300 active:scale-95">+1g Tuz</button>
+              <button onclick="addSalt(2)" class="flex-1 py-1 rounded bg-surface-card border border-borderDark text-[11px] font-bold text-slate-300 active:scale-95">+2g Elektrolit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUPPLEMENT CHECKLIST -->
+        <div class="bg-surface dark:bg-surface light:bg-white p-5 rounded-3xl border border-borderDark">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 class="font-bold text-base text-white">Günlük Takviyeler</h3>
+              <p class="text-xs text-slate-400">Stok takipli günlük listeniz</p>
+            </div>
+            <button onclick="openAddSuppModal()" class="text-xs text-volt font-bold flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>Yeni Takviye</span>
+            </button>
+          </div>
+
+          <div id="supplementsList" class="flex flex-col gap-2.5">
+            <!-- Dynamically Populated -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: ARAÇLAR (IOS LIST & CALCULATORS) -->
+      <!-- ========================================== -->
+      <section id="tab-arac" class="tab-page hidden flex-col gap-4">
+
+        <h2 class="text-xl font-black text-white">Sporcu Araç Kitı</h2>
+
+        <!-- TOOL CARDS GRID -->
+        <div class="grid grid-cols-1 gap-3">
+
+          <!-- 1. VKİ & İDEAL KİLO HESAPLAYICI -->
+          <div class="bg-surface p-4 rounded-2xl border border-borderDark">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-volt/10 text-volt border border-volt/30 flex items-center justify-center text-lg font-bold">
+                <i class="fa-solid fa-weight-scale"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-white">VKİ & İdeal Kilo Hesaplayıcı</h3>
+                <p class="text-xs text-slate-400">Vücut Kitle İndeksi Analizi</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Boy (cm)</label>
+                <input id="bmiHeightInput" type="number" value="178" oninput="calcBMI()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2 text-sm font-bold text-white" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Kilo (kg)</label>
+                <input id="bmiWeightInput" type="number" value="75" oninput="calcBMI()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2 text-sm font-bold text-white" />
+              </div>
+            </div>
+
+            <!-- RESULT DISPLAY -->
+            <div class="bg-surface-card p-3 rounded-xl border border-borderDark flex flex-col gap-2">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-300">VKİ Skoru: <span id="toolBmiScore" class="text-volt font-black text-base ml-1">23.7</span></span>
+                <span id="toolBmiTag" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Normal Kilolu</span>
+              </div>
+              <!-- Color Gauge Bar -->
+              <div class="w-full h-2 rounded-full bg-slate-800 flex overflow-hidden">
+                <div class="h-full bg-blue-400 w-[20%]"></div>
+                <div class="h-full bg-emerald-400 w-[35%]"></div>
+                <div class="h-full bg-amber-400 w-[25%]"></div>
+                <div class="h-full bg-red-500 w-[20%]"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400 font-semibold mt-1">
+                <span>İdeal Kilo Aralığı: <strong id="toolIdealWeightRange" class="text-white">62 - 76 kg</strong></span>
+                <button onclick="applyBmiToProfile()" class="text-volt font-bold underline">Profili Güncelle</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. BARBELL PLAKA & ISINMA PİRAMİDİ HESAPLAYICI -->
+          <div class="bg-surface p-4 rounded-2xl border border-borderDark">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-lg font-bold">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-white">Plaka & Isınma Hesaplayıcı</h3>
+                <p class="text-xs text-slate-400">Hedef Kilo için Taraf Başı Plakalar</p>
+              </div>
+            </div>
+
+            <div class="flex gap-2 mb-3">
+              <div class="flex-1">
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Hedef Ağırlık (kg)</label>
+                <input id="plateTargetInput" type="number" value="100" oninput="calcPlates()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2 text-sm font-bold text-white" />
+              </div>
+              <div class="w-28">
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Bar (kg)</label>
+                <input id="plateBarInput" type="number" value="20" oninput="calcPlates()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2 text-sm font-bold text-white" />
+              </div>
+            </div>
+
+            <div id="platesVisualResult" class="bg-surface-card p-3 rounded-xl border border-borderDark mb-3 text-xs font-bold text-slate-300">
+              <!-- Visual Plates Rendered Here -->
+            </div>
+
+            <!-- Warmup Pyramid breakdown -->
+            <div class="bg-surface-card p-3 rounded-xl border border-borderDark">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Önerilen Isınma Setleri</span>
+              <div id="warmupPyramidList" class="flex flex-col gap-1 text-xs">
+                <!-- Dynamically calculated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. PİŞMİŞ -> ÇİĞ AĞIRLIK DÖNÜŞTÜRÜCÜ -->
+          <div class="bg-surface p-4 rounded-2xl border border-borderDark">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center text-lg font-bold">
+                <i class="fa-solid fa-utensils"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-white">Pişmiş → Çiğ Hesaplayıcı</h3>
+                <p class="text-xs text-slate-400">Su Kaybı ve Çekme Oranları</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Besin Türü</label>
+                <select id="foodTypeSelect" onchange="calcCookedRaw()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2 text-xs font-bold text-white">
+                  <option value="tavuk">Tavuk Göğsü (Su kaybeder)</option>
+                  <option value="kıyma">Kıyma / Dana (Su kaybeder)</option>
+                  <option value="pirinc">Pirinç (Su çeker)</option>
+                  <option value="makarna">Makarna (Su çeker)</option>
+                  <option value="bulgur">Bulgur (Su çeker)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Mevcut Gram (Pişmiş)</label>
+                <input id="cookedWeightInput" type="number" value="200" oninput="calcCookedRaw()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2 text-sm font-bold text-white" />
+              </div>
+            </div>
+
+            <div class="bg-surface-card p-3 rounded-xl border border-borderDark flex justify-between items-center">
+              <span class="text-xs font-semibold text-slate-300">Tahmini Çiğ Ağırlık:</span>
+              <span id="rawWeightResult" class="text-base font-black text-amber-400">266 gram</span>
+            </div>
+          </div>
+
+          <!-- 4. ARALIKLI ORUÇ (IF) SAYACI -->
+          <div class="bg-surface p-4 rounded-2xl border border-borderDark">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center text-lg font-bold">
+                <i class="fa-solid fa-stopwatch font-bold"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-white">Aralıklı Oruç (IF) Sayacı</h3>
+                <p class="text-xs text-slate-400">16:8 / 18:6 Oruç Zamanlayıcı</p>
+              </div>
+            </div>
+
+            <div class="flex gap-2 mb-3">
+              <button onclick="setIfProtocol(16)" class="flex-1 py-1.5 rounded-xl bg-surface-card border border-borderDark text-xs font-bold text-slate-300 hover:text-white">16:8</button>
+              <button onclick="setIfProtocol(18)" class="flex-1 py-1.5 rounded-xl bg-surface-card border border-borderDark text-xs font-bold text-slate-300 hover:text-white">18:6</button>
+              <button onclick="setIfProtocol(14)" class="flex-1 py-1.5 rounded-xl bg-surface-card border border-borderDark text-xs font-bold text-slate-300 hover:text-white">14:10</button>
+            </div>
+
+            <div class="bg-surface-card p-4 rounded-xl border border-borderDark text-center">
+              <div id="ifTimerDisplay" class="text-3xl font-black text-white tracking-widest">16:00:00</div>
+              <div id="ifStatusText" class="text-[11px] text-slate-400 mt-1 font-semibold">Oruç Başlatılmadı</div>
+              <button id="ifToggleBtn" onclick="toggleFastingTimer()" class="mt-3 px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-xl active:scale-95 transition">
+                Orucu Başlat
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 5: PROFİL & GEÇMİŞ & GRAFİKLER -->
+      <!-- ========================================== -->
+      <section id="tab-prof" class="tab-page hidden flex-col gap-5">
+
+        <!-- WEIGHT TRACKER CARD -->
+        <div class="bg-surface p-4 rounded-2xl border border-borderDark">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 class="font-bold text-base text-white">Kilo Takibi</h3>
+              <p class="text-xs text-slate-400">Son 7 Giriş ve Trend</p>
+            </div>
+            <button onclick="promptLogWeight()" class="px-3 py-1.5 bg-volt text-black font-extrabold text-xs rounded-xl active:scale-95">
+              + Kilo Gir
+            </button>
+          </div>
+
+          <!-- Chart.js Canvas -->
+          <div class="w-full h-44 bg-surface-card/50 p-2 rounded-xl border border-borderDark">
+            <canvas id="weightChart"></canvas>
+          </div>
+        </div>
+
+        <!-- PR & 1RM PROGRESSION VIEWER -->
+        <div class="bg-surface p-4 rounded-2xl border border-borderDark">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 class="font-bold text-base text-white">PR & 1RM Gelişimi</h3>
+              <p class="text-xs text-slate-400">Egzersiz Bazlı Maksimum Güç</p>
+            </div>
+          </div>
+
+          <select id="prExerciseSelect" onchange="renderPRChart()" class="w-full bg-surface-card border border-borderDark rounded-xl px-3 py-2 text-xs font-bold text-white mb-3">
+            <option value="Bench Press">Bench Press</option>
+            <option value="Lat Pulldown">Lat Pulldown</option>
+            <option value="Shoulder Press">Shoulder Press</option>
+            <option value="Cable Row">Cable Row</option>
+          </select>
+
+          <div class="w-full h-44 bg-surface-card/50 p-2 rounded-xl border border-borderDark">
+            <canvas id="prChart"></canvas>
+          </div>
+        </div>
+
+        <!-- PAIN & INJURY LOG (AĞRI GÜNLÜĞÜ) -->
+        <div class="bg-surface p-4 rounded-2xl border border-borderDark">
+          <div class="flex justify-between items-center mb-2">
+            <div>
+              <h3 class="font-bold text-base text-white">Ağrı & Sakatlık Günlüğü</h3>
+              <p class="text-xs text-slate-400">Aktif ağrılı bölgeleri işaretleyin</p>
+            </div>
+            <button onclick="openAddInjuryModal()" class="text-xs text-volt font-bold">+ Ekle</button>
+          </div>
+
+          <div id="injuryList" class="flex flex-wrap gap-2 mt-2">
+            <!-- Dynamically populated tags -->
+          </div>
+        </div>
+
+        <!-- DATA BACKUP & RESET -->
+        <div class="bg-surface p-4 rounded-2xl border border-borderDark flex flex-col gap-2">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Veri Yönetimi</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="exportDataJSON()" class="py-2.5 bg-surface-card border border-borderDark text-xs font-bold text-slate-300 rounded-xl hover:text-white active:scale-95">
+              <i class="fa-solid fa-download mr-1 text-volt"></i> Yedeği İndir (JSON)
+            </button>
+            <button onclick="importDataJSON()" class="py-2.5 bg-surface-card border border-borderDark text-xs font-bold text-slate-300 rounded-xl hover:text-white active:scale-95">
+              <i class="fa-solid fa-upload mr-1 text-sky-400"></i> Yükle (JSON)
+            </button>
+          </div>
+          <button onclick="resetAllData()" class="mt-1 py-2 text-xs font-bold text-red-400 hover:text-red-300">
+            Tüm Verileri Sıfırla
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- FLOATING REST TIMER PILL (FITS ABOVE BOTTOM NAV) -->
+    <div id="floatingRestTimer" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40 bg-volt text-black px-4 py-2.5 rounded-full shadow-2xl border border-black/20 flex items-center gap-3 animate-bounce">
+      <i class="fa-solid fa-stopwatch text-base"></i>
+      <div class="flex flex-col">
+        <span class="text-[9px] font-black uppercase tracking-wider leading-none">Dinlenme</span>
+        <span id="floatingRestTime" class="text-base font-black leading-none mt-0.5">01:30</span>
+      </div>
+      <div class="flex items-center gap-1 ml-1">
+        <button onclick="adjustRestTimer(-15)" class="px-2 py-0.5 bg-black/10 hover:bg-black/20 rounded font-bold text-xs">-15s</button>
+        <button onclick="adjustRestTimer(+15)" class="px-2 py-0.5 bg-black/10 hover:bg-black/20 rounded font-bold text-xs">+15s</button>
+        <button onclick="stopRestTimer()" class="px-2 py-0.5 bg-black text-volt rounded font-bold text-xs ml-1">Atla</button>
+      </div>
+    </div>
+
+    <!-- FIXED FROSTED-GLASS BOTTOM TAB BAR -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[460px] z-30 ios-glass px-2 py-2 flex justify-around items-center">
+      <button onclick="switchTab('bugun')" id="nav-bugun" class="nav-item flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-volt transition">
+        <i class="fa-solid fa-calendar-day text-lg"></i>
+        <span class="text-[10px] font-bold">Bugün</span>
+      </button>
+
+      <button onclick="switchTab('ant')" id="nav-ant" class="nav-item flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-slate-400 hover:text-slate-200 transition">
+        <i class="fa-solid fa-dumbbell text-lg"></i>
+        <span class="text-[10px] font-bold">Antrenman</span>
+      </button>
+
+      <button onclick="switchTab('su')" id="nav-su" class="nav-item flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-slate-400 hover:text-slate-200 transition">
+        <i class="fa-solid fa-glass-water text-lg"></i>
+        <span class="text-[10px] font-bold">Su & Takviye</span>
+      </button>
+
+      <button onclick="switchTab('arac')" id="nav-arac" class="nav-item flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-slate-400 hover:text-slate-200 transition">
+        <i class="fa-solid fa-toolbox text-lg"></i>
+        <span class="text-[10px] font-bold">Araçlar</span>
+      </button>
+
+      <button onclick="switchTab('prof')" id="nav-prof" class="nav-item flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-slate-400 hover:text-slate-200 transition">
+        <i class="fa-solid fa-user text-lg"></i>
+        <span class="text-[10px] font-bold">Profil</span>
+      </button>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- IOS BOTTOM SHEETS & MODALS -->
+    <!-- ========================================== -->
+
+    <!-- EXERCISE OPTION BOTTOM SHEET (•••) -->
+    <div id="exerciseSheetModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-end">
+      <div class="w-full max-w-[460px] bg-surface rounded-t-3xl border-t border-borderDark p-5 flex flex-col gap-3 sheet-enter">
+        <div class="w-12 h-1 bg-slate-600 rounded-full mx-auto mb-1"></div>
+        <div class="flex justify-between items-center mb-1">
+          <h3 id="sheetExTitle" class="font-bold text-lg text-white">Hareket Seçenekleri</h3>
+          <button onclick="closeExerciseSheet()" class="text-slate-400 text-sm"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <a id="sheetYtBtn" href="#" target="_blank" class="p-3 bg-surface-card border border-borderDark rounded-xl flex items-center gap-3 text-red-500 font-bold text-xs">
+          <i class="fa-brands fa-youtube text-lg"></i>
+          <span>YouTube Rehber Formu İzle</span>
+        </a>
+
+        <button onclick="promptExerciseNote()" class="p-3 bg-surface-card border border-borderDark rounded-xl flex items-center gap-3 text-slate-200 font-bold text-xs text-left">
+          <i class="fa-solid fa-note-sticky text-amber-400 text-lg"></i>
+          <div>
+            <div>Makine / Form Notu Ekle</div>
+            <div id="sheetExNotePreview" class="text-[10px] font-normal text-slate-400">Koltuğu 3. kademeye getir...</div>
+          </div>
+        </button>
+
+        <button onclick="swapExerciseAction()" class="p-3 bg-surface-card border border-borderDark rounded-xl flex items-center gap-3 text-sky-400 font-bold text-xs text-left">
+          <i class="fa-solid fa-arrows-rotate text-lg"></i>
+          <span>Hareket Değiştir (Alternatif Seç)</span>
+        </button>
+
+        <button onclick="showExerciseHistoryModal()" class="p-3 bg-surface-card border border-borderDark rounded-xl flex items-center gap-3 text-emerald-400 font-bold text-xs text-left">
+          <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+          <span>Son 5 Seans Geçmişi</span>
+        </button>
+
+        <button onclick="removeExerciseFromActive()" class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3 text-red-400 font-bold text-xs text-left">
+          <i class="fa-solid fa-trash text-lg"></i>
+          <span>Hareketi Antrenmandan Çıkar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ANTRENMAN KARNESİ (SUMMARY MODAL) -->
+    <div id="summaryModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4">
+      <div class="w-full max-w-[400px] bg-surface rounded-3xl border border-volt/40 p-6 flex flex-col items-center text-center shadow-2xl relative">
+        <div class="w-16 h-16 rounded-full bg-volt text-black flex items-center justify-center text-2xl font-black mb-3 shadow-lg">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+
+        <h3 class="text-2xl font-black text-white">Harika İş Çıkardın!</h3>
+        <p class="text-xs text-slate-400 mt-1">Antrenmanın başarıyla kaydedildi.</p>
+
+        <div class="grid grid-cols-3 gap-2 w-full my-5">
+          <div class="bg-surface-card p-3 rounded-2xl border border-borderDark">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Süre</span>
+            <div id="summaryTime" class="text-base font-black text-white mt-1">45 dk</div>
+          </div>
+          <div class="bg-surface-card p-3 rounded-2xl border border-borderDark">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Set</span>
+            <div id="summarySets" class="text-base font-black text-volt mt-1">24</div>
+          </div>
+          <div class="bg-surface-card p-3 rounded-2xl border border-borderDark">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Hacim</span>
+            <div id="summaryVol" class="text-base font-black text-white mt-1">4,250 kg</div>
+          </div>
+        </div>
+
+        <div id="summaryPrs" class="w-full bg-volt/10 border border-volt/30 p-3 rounded-xl text-left text-xs text-volt font-bold mb-4 hidden">
+          <i class="fa-solid fa-star mr-1"></i> Yeni Kişisel Rekor (PR) Kırıldı!
+        </div>
+
+        <button onclick="closeSummaryModal()" class="w-full py-3.5 bg-volt text-black font-extrabold text-sm rounded-2xl shadow-lg active:scale-95">
+          Tamamdır
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    /* ==========================================================================
+       BUILT-IN FIXED 4 PROGRAMS WITH YOUTUBE LINKS
+       ========================================================================== */
+    const PRESET_PROGRAMS = {
+      "Pazartesi GYM": [
+        { name: "Rotator Cuff and Shoulder Press", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=mky_NYCsmTQ", sets: [{kg: 15, reps: 12, done: false, type: '1'}] },
+        { name: "COBRA PRESS", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=8c6h07Sg18g", sets: [{kg: 20, reps: 10, done: false, type: '1'}] },
+        { name: "INCLINE CHEST PRESS MAC", muscle: "Göğüs", yt: "https://www.youtube.com/watch?v=T5VMsjSpKts", sets: [{kg: 50, reps: 10, done: false, type: '1'}] },
+        { name: "Seated Chest Press Machine", muscle: "Göğüs", yt: "https://www.youtube.com/watch?v=65npK4ljz1c", sets: [{kg: 60, reps: 10, done: false, type: '1'}] },
+        { name: "Assisted Push Up", muscle: "Göğüs", yt: "https://www.youtube.com/watch?v=9Yoqen-3ygE", sets: [{kg: 0, reps: 15, done: false, type: '1'}] },
+        { name: "Dumbbell Lateral Raise", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=kGgtmhfCuYQ", sets: [{kg: 10, reps: 12, done: false, type: '1'}] },
+        { name: "PUSH DOWN", muscle: "Kol", yt: "https://www.youtube.com/watch?v=gc7NCFb-2is", sets: [{kg: 25, reps: 12, done: false, type: '1'}] },
+        { name: "Cable Triceps Pushdown", muscle: "Kol", yt: "https://www.youtube.com/watch?v=ppbHcxIt9Ac", sets: [{kg: 30, reps: 10, done: false, type: '1'}] }
+      ],
+      "Salı GYM": [
+        { name: "Upright and Rotator Cuff", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=8z8_FLRP7pg", sets: [{kg: 20, reps: 12, done: false, type: '1'}] },
+        { name: "SUPINASYON LAT PULLDOWN", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=ZL-HH4nT3mA", sets: [{kg: 55, reps: 10, done: false, type: '1'}] },
+        { name: "PRONASYON LAT PULLDOWN", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=HwtZvb_3tIo", sets: [{kg: 50, reps: 10, done: false, type: '1'}] },
+        { name: "Seated Cable Row", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=UCXxvVItLoM", sets: [{kg: 60, reps: 10, done: false, type: '1'}] },
+        { name: "FACE PULL", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=MGLyNfulwvE", sets: [{kg: 20, reps: 15, done: false, type: '1'}] },
+        { name: "HYPER EXTENSION", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=s1WMldYyITk", sets: [{kg: 10, reps: 12, done: false, type: '1'}] },
+        { name: "CABLE MİNİ BAR CURL", muscle: "Kol", yt: "https://www.youtube.com/watch?v=5egH6b5j7NE", sets: [{kg: 25, reps: 12, done: false, type: '1'}] },
+        { name: "ROPE CROSS CURL", muscle: "Kol", yt: "https://www.youtube.com/watch?v=pGLpKak5mqc", sets: [{kg: 20, reps: 12, done: false, type: '1'}] }
+      ],
+      "Cuma GYM": [
+        { name: "Rotator Cuff and Shoulder Press", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=mky_NYCsmTQ", sets: [{kg: 15, reps: 12, done: false, type: '1'}] },
+        { name: "COBRA PRESS", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=8c6h07Sg18g", sets: [{kg: 20, reps: 10, done: false, type: '1'}] },
+        { name: "SM INCLINE BENCH PRESS", muscle: "Göğüs", yt: "https://www.youtube.com/watch?v=9eFxNdzQw3w", sets: [{kg: 60, reps: 8, done: false, type: '1'}] },
+        { name: "DUMBELL BENCH PRESS", muscle: "Göğüs", yt: "https://www.youtube.com/watch?v=qnkX5y99ziU", sets: [{kg: 24, reps: 10, done: false, type: '1'}] },
+        { name: "Seated Cable Row", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=QsRigMd32AA", sets: [{kg: 60, reps: 10, done: false, type: '1'}] },
+        { name: "Push Up", muscle: "Göğüs", yt: "https://www.youtube.com/watch?v=8Q8r0WPk9vQ", sets: [{kg: 0, reps: 20, done: false, type: '1'}] },
+        { name: "DUMBELL UPRIGHT ROW", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=T0AE9TBXMWE", sets: [{kg: 14, reps: 12, done: false, type: '1'}] },
+        { name: "Dumbbell Lateral Raise", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=kGgtmhfCuYQ", sets: [{kg: 12, reps: 12, done: false, type: '1'}] },
+        { name: "Dumbbell Biceps Curl", muscle: "Kol", yt: "https://www.youtube.com/watch?v=3tv2W1aD4m0", sets: [{kg: 14, reps: 10, done: false, type: '1'}] },
+        { name: "Dumbbell Hammer Curl", muscle: "Kol", yt: "https://www.youtube.com/watch?v=naE7VtMCKLE", sets: [{kg: 14, reps: 10, done: false, type: '1'}] }
+      ],
+      "Cumartesi GYM": [
+        { name: "Upright and Rotator Cuff", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=8z8_FLRP7pg", sets: [{kg: 20, reps: 12, done: false, type: '1'}] },
+        { name: "Shoulders Tap", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=XkSSbhXMpzg", sets: [{kg: 0, reps: 20, done: false, type: '1'}] },
+        { name: "Prone Lat Pulldown", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=hrvdVv1USQo", sets: [{kg: 50, reps: 10, done: false, type: '1'}] },
+        { name: "Seated Cable Row", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=QsRigMd32AA", sets: [{kg: 65, reps: 10, done: false, type: '1'}] },
+        { name: "RACK PULL", muscle: "Sırt", yt: "https://www.youtube.com/watch?v=5w4Iyj9KUog", sets: [{kg: 100, reps: 8, done: false, type: '1'}] },
+        { name: "FACE PULL", muscle: "Omuz", yt: "https://www.youtube.com/watch?v=MGLyNfulwvE", sets: [{kg: 22.5, reps: 12, done: false, type: '1'}] },
+        { name: "Dumbbell Hammer Curl", muscle: "Kol", yt: "https://www.youtube.com/watch?v=naE7VtMCKLE", sets: [{kg: 16, reps: 10, done: false, type: '1'}] },
+        { name: "Incline Dumbell Curl", muscle: "Kol", yt: "https://www.youtube.com/watch?v=RtmR3WVYbf0", sets: [{kg: 12, reps: 10, done: false, type: '1'}] }
+      ]
+    };
+
+    /* ==========================================================================
+       APP STATE & LOCAL STORAGE INITIALIZATION
+       ========================================================================== */
+    let appState = {
+      waterMl: 1850,
+      waterGoal: 4000,
+      saltGram: 4.5,
+      saltGoal: 8.0,
+      userWeight: 75,
+      userHeight: 178,
+      activeWorkout: null, // { title: '', exercises: [], startTime: timestamp }
+      workoutTimerInterval: null,
+      workoutSeconds: 0,
+      restTimerInterval: null,
+      restSeconds: 0,
+      cardioTimerInterval: null,
+      cardioSeconds: 0,
+      isFasting: false,
+      fastingSeconds: 57600,
+      fastingInterval: null,
+      selectedCardioType: 'Eğimli Yürüyüş',
+      supplements: [
+        { name: 'Omega-3 Balık Yağı', taken: true, stock: 45 },
+        { name: 'Multivitamin', taken: true, stock: 30 },
+        { name: 'D3 & K2 Vitamini', taken: true, stock: 60 },
+        { name: 'Kreatin Monohidrat (5g)', taken: false, stock: 25 },
+        { name: 'Whey Protein (1 Ölçek)', taken: false, stock: 18 }
+      ],
+      injuries: ['Omuz (Rotator Cuff)'],
+      weightHistory: [
+        { date: '14 Kas', weight: 76.2 },
+        { date: '15 Kas', weight: 76.0 },
+        { date: '16 Kas', weight: 75.8 },
+        { date: '17 Kas', weight: 75.5 },
+        { date: '18 Kas', weight: 75.3 },
+        { date: '19 Kas', weight: 75.1 },
+        { date: '20 Kas', weight: 75.0 }
+      ],
+      cardioLogs: [
+        { type: 'Eğimli Yürüyüş', duration: 25, speed: 5.0, incline: 10, kcal: 240 }
+      ]
+    };
+
+    let activeExIndexForSheet = null;
+
+    // Load from LocalStorage
+    function loadState() {
+      const saved = localStorage.getItem('fitTakip_v21_state');
+      if (saved) {
+        try { appState = JSON.parse(saved); } catch(e) {}
+      }
+    }
+    function saveState() {
+      localStorage.setItem('fitTakip_v21_state', JSON.stringify(appState));
+    }
+
+    /* ==========================================================================
+       THEME MANAGEMENT
+       ========================================================================== */
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+      }
+    }
+
+    /* ==========================================================================
+       NAVIGATION & TABS
+       ========================================================================== */
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-page').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('text-volt');
+        el.classList.add('text-slate-400');
+      });
+
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+      document.getElementById('nav-' + tabId).classList.add('text-volt');
+      document.getElementById('nav-' + tabId).classList.remove('text-slate-400');
+
+      if (tabId === 'prof') {
+        renderWeightChart();
+        renderPRChart();
+      }
+    }
+
+    function setWorkoutSegment(type) {
+      const btnW = document.getElementById('segBtnWeight');
+      const btnC = document.getElementById('segBtnCardio');
+      const viewW = document.getElementById('viewWeight');
+      const viewC = document.getElementById('viewCardio');
+
+      if (type === 'weight') {
+        btnW.className = "flex-1 py-2 text-xs font-extrabold rounded-lg transition bg-volt text-black shadow-sm flex items-center justify-center gap-1.5";
+        btnC.className = "flex-1 py-2 text-xs font-bold text-slate-400 hover:text-white rounded-lg transition flex items-center justify-center gap-1.5";
+        viewW.classList.remove('hidden');
+        viewC.classList.add('hidden');
+      } else {
+        btnC.className = "flex-1 py-2 text-xs font-extrabold rounded-lg transition bg-cardio text-white shadow-sm flex items-center justify-center gap-1.5";
+        btnW.className = "flex-1 py-2 text-xs font-bold text-slate-400 hover:text-white rounded-lg transition flex items-center justify-center gap-1.5";
+        viewC.classList.remove('hidden');
+        viewW.classList.add('hidden');
+      }
+    }
+    function setCardioSegment() { setWorkoutSegment('cardio'); }
+
+    /* ==========================================================================
+       TAB 1: BUGÜN LOGIC & CALENDAR STRIP
+       ========================================================================== */
+    function renderWeekStrip() {
+      const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+      const todayIdx = 4; // Cuma
+      const grid = document.getElementById('weekDaysGrid');
+      grid.innerHTML = '';
+
+      days.forEach((day, idx) => {
+        const isToday = idx === todayIdx;
+        const activeClass = isToday ? 'bg-volt text-black font-extrabold scale-105 shadow' : 'bg-surface-card text-slate-400 font-semibold';
+        grid.innerHTML += `
+          <div class="p-2 rounded-xl flex flex-col items-center cursor-pointer ${activeClass}">
+            <span class="text-[10px] uppercase">${day}</span>
+            <span class="text-xs font-bold mt-0.5">${16 + idx}</span>
+            <div class="flex gap-0.5 mt-1">
+              <span class="w-1.5 h-1.5 rounded-full ${idx === 0 || idx === 1 || idx === 4 || idx === 5 ? 'bg-volt' : 'bg-slate-600'}"></span>
+              <span class="w-1.5 h-1.5 rounded-full ${idx === 4 ? 'bg-cardio' : 'bg-transparent'}"></span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function toggleMonthCalendar() {
+      const grid = document.getElementById('monthCalendarGrid');
+      const chevron = document.getElementById('monthChevron');
+      if (grid.classList.contains('hidden')) {
+        grid.classList.remove('hidden');
+        chevron.className = "fa-solid fa-chevron-up text-[10px]";
+        grid.innerHTML = '';
+        for(let i=1; i<=30; i++) {
+          grid.innerHTML += `<div class="p-1.5 bg-surface-card rounded text-slate-300 font-medium ${i===20?'border border-volt text-volt font-bold':''}">${i}</div>`;
+        }
+      } else {
+        grid.classList.add('hidden');
+        chevron.className = "fa-solid fa-chevron-down text-[10px]";
+      }
+    }
+
+    function toggleTodayOffDay() {
+      const pill = document.getElementById('todayOffPill');
+      const title = document.getElementById('todayProgramTitle');
+      const sub = document.getElementById('todayProgramSub');
+      if (pill.classList.contains('bg-volt')) {
+        pill.className = "px-3 py-1 rounded-full text-xs font-bold bg-surface-card border border-borderDark text-slate-400 active:scale-95 transition";
+        title.innerText = "Pazartesi GYM";
+        sub.innerText = "8 Göğüs / Omuz / Triceps Hareketi";
+      } else {
+        pill.className = "px-3 py-1 rounded-full text-xs font-bold bg-volt text-black active:scale-95 transition";
+        title.innerText = "Dinlenme Günü (Off Day)";
+        sub.innerText = "Kas onarımı ve hafif yürüyüş yapın";
+      }
+    }
+
+    function startTodayWorkout() {
+      switchTab('ant');
+      setWorkoutSegment('weight');
+      launchPresetWorkout('Pazartesi GYM');
+    }
+
+    /* ==========================================================================
+       TAB 2: WORKOUT & EXERCISE LOGIC
+       ========================================================================== */
+    function launchPresetWorkout(programName) {
+      const exercises = JSON.parse(JSON.stringify(PRESET_PROGRAMS[programName] || []));
+      appState.activeWorkout = {
+        title: programName,
+        exercises: exercises,
+        startTime: Date.now()
+      };
+
+      document.getElementById('workoutLauncher').classList.add('hidden');
+      document.getElementById('activeWorkoutView').classList.remove('hidden');
+      document.getElementById('activeSessionTitle').innerText = programName;
+
+      // Start timer
+      appState.workoutSeconds = 0;
+      if (appState.workoutTimerInterval) clearInterval(appState.workoutTimerInterval);
+      appState.workoutTimerInterval = setInterval(() => {
+        appState.workoutSeconds++;
+        const mins = String(Math.floor(appState.workoutSeconds / 60)).padStart(2, '0');
+        const secs = String(appState.workoutSeconds % 60).padStart(2, '0');
+        document.getElementById('activeTimer').innerText = `${mins}:${secs}`;
+      }, 1000);
+
+      renderActiveWorkout();
+    }
+
+    function renderActiveWorkout() {
+      const container = document.getElementById('activeExercisesContainer');
+      container.innerHTML = '';
+
+      let totalVolume = 0;
+
+      appState.activeWorkout.exercises.forEach((ex, exIdx) => {
+        let exHtml = `
+          <div class="bg-surface p-4 rounded-2xl border border-borderDark flex flex-col gap-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-bold text-base text-white">${ex.name}</h4>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-card border border-borderDark text-slate-300">${ex.muscle}</span>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Son Seans: <span class="text-slate-300 font-semibold">60kg × 10</span></div>
+              </div>
+              <button onclick="openExerciseSheet(${exIdx})" class="w-8 h-8 rounded-full bg-surface-card border border-borderDark text-slate-300 flex items-center justify-center hover:text-white">
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+            </div>
+
+            <!-- Set Table -->
+            <div class="flex flex-col gap-2">
+              <div class="grid grid-cols-12 text-[10px] font-bold text-slate-400 uppercase px-1">
+                <span class="col-span-3">TİP</span>
+                <span class="col-span-3 text-center">KG</span>
+                <span class="col-span-3 text-center">TEKRAR</span>
+                <span class="col-span-3 text-right">ONAY</span>
+              </div>
+        `;
+
+        ex.sets.forEach((st, setIdx) => {
+          if (st.done && st.type === '1') {
+            totalVolume += (st.kg * st.reps);
+          }
+
+          let typeLabel = st.type === '1' ? '1' : st.type === 'I' ? 'I' : st.type === 'D' ? 'D' : 'T';
+          let typeColor = st.type === 'I' ? 'bg-sky-500/20 text-sky-400' : st.type === 'D' ? 'bg-amber-500/20 text-amber-400' : st.type === 'T' ? 'bg-red-500/20 text-red-400' : 'bg-surface-card text-slate-300';
+
+          exHtml += `
+            <div class="grid grid-cols-12 items-center gap-2 bg-surface-card/60 p-2 rounded-xl border border-borderDark/40">
+              <button onclick="cycleSetType(${exIdx}, ${setIdx})" class="col-span-3 py-1.5 px-2 rounded-lg ${typeColor} font-black text-xs text-center border border-borderDark">
+                ${typeLabel}
+              </button>
+
+              <div class="col-span-3">
+                <input type="number" value="${st.kg}" onchange="updateSetVal(${exIdx}, ${setIdx}, 'kg', this.value)" class="w-full bg-surface-card border border-borderDark rounded-lg py-1.5 px-2 text-center text-sm font-extrabold text-white" />
+              </div>
+
+              <div class="col-span-3">
+                <input type="number" value="${st.reps}" onchange="updateSetVal(${exIdx}, ${setIdx}, 'reps', this.value)" class="w-full bg-surface-card border border-borderDark rounded-lg py-1.5 px-2 text-center text-sm font-extrabold text-white" />
+              </div>
+
+              <div class="col-span-3 flex justify-end">
+                <button onclick="toggleSetDone(${exIdx}, ${setIdx})" class="w-10 h-10 rounded-full ${st.done ? 'bg-volt text-black scale-105' : 'bg-surface-card border border-borderDark text-slate-500'} flex items-center justify-center font-bold text-base transition">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+        exHtml += `
+            </div>
+            <button onclick="addSetToExercise(${exIdx})" class="w-full py-2 bg-surface-card hover:bg-surface-hover text-slate-300 font-bold text-xs rounded-xl border border-borderDark flex items-center justify-center gap-1 mt-1">
+              <i class="fa-solid fa-plus text-[10px]"></i> Set Ekle
+            </button>
+          </div>
+        `;
+
+        container.innerHTML += exHtml;
+      });
+
+      document.getElementById('activeVolume').innerText = `${totalVolume.toLocaleString()} kg`;
+    }
+
+    function cycleSetType(exIdx, setIdx) {
+      const types = ['1', 'I', 'D', 'T'];
+      const cur = appState.activeWorkout.exercises[exIdx].sets[setIdx].type || '1';
+      const next = types[(types.indexOf(cur) + 1) % types.length];
+      appState.activeWorkout.exercises[exIdx].sets[setIdx].type = next;
+      renderActiveWorkout();
+    }
+
+    function updateSetVal(exIdx, setIdx, field, val) {
+      appState.activeWorkout.exercises[exIdx].sets[setIdx][field] = parseFloat(val) || 0;
+      renderActiveWorkout();
+    }
+
+    function toggleSetDone(exIdx, setIdx) {
+      const setObj = appState.activeWorkout.exercises[exIdx].sets[setIdx];
+      setObj.done = !setObj.done;
+
+      if (setObj.done) {
+        // Haptic feedback
+        if (navigator.vibrate) navigator.vibrate(40);
+        triggerRestTimer(90);
+      }
+      renderActiveWorkout();
+    }
+
+    function addSetToExercise(exIdx) {
+      const sets = appState.activeWorkout.exercises[exIdx].sets;
+      const lastSet = sets[sets.length - 1] || { kg: 20, reps: 10 };
+      sets.push({ kg: lastSet.kg, reps: lastSet.reps, done: false, type: '1' });
+      renderActiveWorkout();
+    }
+
+    function openAddExerciseModal() {
+      const name = prompt("Eklenecek Hareket Adı:");
+      if (!name) return;
+      appState.activeWorkout.exercises.push({
+        name: name,
+        muscle: 'Genel',
+        yt: 'https://youtube.com',
+        sets: [{ kg: 20, reps: 10, done: false, type: '1' }]
+      });
+      renderActiveWorkout();
+    }
+
+    /* REST TIMER FLOATING PILL */
+    function triggerRestTimer(sec) {
+      appState.restSeconds = sec;
+      const pill = document.getElementById('floatingRestTimer');
+      pill.classList.remove('hidden');
+
+      if (appState.restTimerInterval) clearInterval(appState.restTimerInterval);
+      appState.restTimerInterval = setInterval(() => {
+        appState.restSeconds--;
+        const m = String(Math.floor(appState.restSeconds / 60)).padStart(2, '0');
+        const s = String(appState.restSeconds % 60).padStart(2, '0');
+        document.getElementById('floatingRestTime').innerText = `${m}:${s}`;
+
+        if (appState.restSeconds <= 0) {
+          stopRestTimer();
+          playBeep();
+        }
+      }, 1000);
+    }
+
+    function adjustRestTimer(delta) {
+      appState.restSeconds = Math.max(0, appState.restSeconds + delta);
+    }
+    function stopRestTimer() {
+      clearInterval(appState.restTimerInterval);
+      document.getElementById('floatingRestTimer').classList.add('hidden');
+    }
+
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } catch(e) {}
+    }
+
+    /* EXERCISE BOTTOM SHEET FUNCTIONS */
+    function openExerciseSheet(exIdx) {
+      activeExIndexForSheet = exIdx;
+      const ex = appState.activeWorkout.exercises[exIdx];
+      document.getElementById('sheetExTitle').innerText = ex.name;
+      document.getElementById('sheetYtBtn').href = ex.yt || '#';
+      document.getElementById('exerciseSheetModal').classList.remove('hidden');
+    }
+    function closeExerciseSheet() {
+      document.getElementById('exerciseSheetModal').classList.add('hidden');
+    }
+    function promptExerciseNote() {
+      const note = prompt("Makine / Form Notu (örn: Koltuk 3, Tutuş Geniş):");
+      if (note !== null) {
+        alert("Not kaydedildi: " + note);
+      }
+      closeExerciseSheet();
+    }
+    function swapExerciseAction() {
+      const newName = prompt("Alternatif Hareket İsmi:");
+      if (newName) {
+        appState.activeWorkout.exercises[activeExIndexForSheet].name = newName;
+        renderActiveWorkout();
+      }
+      closeExerciseSheet();
+    }
+    function showExerciseHistoryModal() {
+      alert("Son 5 Seans Geçmişi:\n• 18 Kas: 60kg x 10\n• 15 Kas: 57.5kg x 10\n• 11 Kas: 55kg x 12");
+      closeExerciseSheet();
+    }
+    function removeExerciseFromActive() {
+      appState.activeWorkout.exercises.splice(activeExIndexForSheet, 1);
+      renderActiveWorkout();
+      closeExerciseSheet();
+    }
+
+    function finishActiveWorkout() {
+      clearInterval(appState.workoutTimerInterval);
+      const mins = Math.max(1, Math.floor(appState.workoutSeconds / 60));
+
+      let totalSets = 0;
+      let totalVol = 0;
+      appState.activeWorkout.exercises.forEach(ex => {
+        ex.sets.forEach(st => {
+          if (st.done) {
+            totalSets++;
+            if (st.type === '1') totalVol += (st.kg * st.reps);
+          }
+        });
+      });
+
+      document.getElementById('summaryTime').innerText = `${mins} dk`;
+      document.getElementById('summarySets').innerText = totalSets;
+      document.getElementById('summaryVol').innerText = `${totalVol.toLocaleString()} kg`;
+      document.getElementById('summaryModal').classList.remove('hidden');
+
+      // Reset Active View
+      document.getElementById('activeWorkoutView').classList.add('hidden');
+      document.getElementById('workoutLauncher').classList.remove('hidden');
+      appState.activeWorkout = null;
+    }
+    function closeSummaryModal() {
+      document.getElementById('summaryModal').classList.add('hidden');
+    }
+
+    /* ==========================================================================
+       CARDIO MODULE LOGIC
+       ========================================================================== */
+    function selectCardioType(type) {
+      appState.selectedCardioType = type;
+      document.querySelectorAll('.cardio-type-btn').forEach(btn => {
+        if (btn.innerText.includes(type)) {
+          btn.className = "cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-volt text-black whitespace-nowrap shadow-sm";
+        } else {
+          btn.className = "cardio-type-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-surface-card border border-borderDark text-slate-300 whitespace-nowrap";
+        }
+      });
+    }
+
+    function applyCardioPreset(dur, speed, inc) {
+      document.getElementById('cardioDurationInput').value = dur;
+      document.getElementById('cardioSpeedInput').value = speed;
+      document.getElementById('cardioInclineInput').value = inc;
+      document.getElementById('cardioDistanceInput').value = (speed * (dur / 60)).toFixed(1);
+      recalcCardioKcal();
+    }
+
+    function toggleCardioStopwatch() {
+      const btn = document.getElementById('cardioTimerStartBtn');
+      if (appState.cardioTimerInterval) {
+        clearInterval(appState.cardioTimerInterval);
+        appState.cardioTimerInterval = null;
+        btn.innerText = "Devam Et";
+        btn.className = "px-5 py-2 bg-volt text-black font-extrabold text-xs rounded-xl active:scale-95 shadow";
+        // Auto-fill duration input
+        document.getElementById('cardioDurationInput').value = Math.max(1, Math.round(appState.cardioSeconds / 60));
+        recalcCardioKcal();
+      } else {
+        btn.innerText = "Duraklat";
+        btn.className = "px-5 py-2 bg-amber-500 text-black font-extrabold text-xs rounded-xl active:scale-95 shadow";
+        appState.cardioTimerInterval = setInterval(() => {
+          appState.cardioSeconds++;
+          const h = String(Math.floor(appState.cardioSeconds / 3600)).padStart(2, '0');
+          const m = String(Math.floor((appState.cardioSeconds % 3600) / 60)).padStart(2, '0');
+          const s = String(appState.cardioSeconds % 60).padStart(2, '0');
+          document.getElementById('cardioStopwatchDisplay').innerText = `${h}:${m}:${s}`;
+        }, 1000);
+      }
+    }
+    function resetCardioStopwatch() {
+      if (appState.cardioTimerInterval) {
+        clearInterval(appState.cardioTimerInterval);
+        appState.cardioTimerInterval = null;
+      }
+      appState.cardioSeconds = 0;
+      document.getElementById('cardioStopwatchDisplay').innerText = "00:00:00";
+      document.getElementById('cardioTimerStartBtn').innerText = "Başlat";
+    }
+
+    function recalcCardioKcal() {
+      const dur = parseFloat(document.getElementById('cardioDurationInput').value) || 0;
+      const speed = parseFloat(document.getElementById('cardioSpeedInput').value) || 0;
+      const inc = parseFloat(document.getElementById('cardioInclineInput').value) || 0;
+      const weight = appState.userWeight || 75;
+
+      // ACSM Walking formula: MET = (0.1 * speed_m_min) + (1.8 * speed_m_min * grade) + 3.5
+      const speedMPerMin = speed * 16.6667;
+      const grade = inc / 100;
+      const vo2 = (0.1 * speedMPerMin) + (1.8 * speedMPerMin * grade) + 3.5;
+      const kcalPerMin = (vo2 * weight) / 200;
+      const totalKcal = Math.round(kcalPerMin * dur);
+
+      document.getElementById('cardioKcalDisplay').innerText = `${totalKcal} kcal`;
+    }
+
+    function saveCardioSession() {
+      const dur = parseInt(document.getElementById('cardioDurationInput').value) || 0;
+      const speed = parseFloat(document.getElementById('cardioSpeedInput').value) || 0;
+      const inc = parseFloat(document.getElementById('cardioInclineInput').value) || 0;
+      const kcal = parseInt(document.getElementById('cardioKcalDisplay').innerText) || 200;
+
+      appState.cardioLogs.push({
+        type: appState.selectedCardioType,
+        duration: dur,
+        speed: speed,
+        incline: inc,
+        kcal: kcal
+      });
+
+      saveState();
+      renderCardioLogs();
+      updateBugunCardioSummary();
+      alert("Kardiyo seansı kaydedildi!");
+    }
+
+    function renderCardioLogs() {
+      const container = document.getElementById('todayCardioLogsList');
+      container.innerHTML = '';
+      if (appState.cardioLogs.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-500 italic">Bugün kaydedilmiş kardiyo bulunmuyor.</div>`;
+        return;
+      }
+      appState.cardioLogs.forEach((log, idx) => {
+        container.innerHTML += `
+          <div class="bg-surface p-3 rounded-xl border border-borderDark flex justify-between items-center">
+            <div>
+              <span class="font-bold text-xs text-white">${log.type}</span>
+              <div class="text-[10px] text-slate-400">${log.duration} dk • %${log.incline} Eğim • ${log.speed} km/s</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-black text-xs text-cardio">${log.kcal} kcal</span>
+              <button onclick="deleteCardioLog(${idx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function deleteCardioLog(idx) {
+      appState.cardioLogs.splice(idx, 1);
+      saveState();
+      renderCardioLogs();
+      updateBugunCardioSummary();
+    }
+
+    function updateBugunCardioSummary() {
+      let totalMin = 0;
+      let totalKcal = 0;
+      appState.cardioLogs.forEach(l => {
+        totalMin += l.duration;
+        totalKcal += l.kcal;
+      });
+      document.getElementById('bugunCardioVal').innerText = `${totalMin} dk`;
+      document.getElementById('bugunCardioKcal').innerText = `${totalKcal} kcal yakıldı`;
+    }
+
+    /* ==========================================================================
+       TAB 3: SU & TAKVİYE LOGIC
+       ========================================================================== */
+    function addWater(ml) {
+      appState.waterMl = Math.min(appState.waterGoal, appState.waterMl + ml);
+      saveState();
+      renderWaterUI();
+    }
+    function undoWater() {
+      appState.waterMl = Math.max(0, appState.waterMl - 250);
+      saveState();
+      renderWaterUI();
+    }
+    function renderWaterUI() {
+      document.getElementById('waterRingCurrent').innerText = appState.waterMl;
+      document.getElementById('bugunWaterVal').innerText = `${(appState.waterMl / 1000).toFixed(1)} / ${(appState.waterGoal / 1000).toFixed(1)}L`;
+
+      const pct = Math.min(1, appState.waterMl / appState.waterGoal);
+      const dashoffset = 264 - (264 * pct);
+      document.getElementById('waterProgressRing').style.strokeDashoffset = dashoffset;
+    }
+
+    function addSalt(g) {
+      appState.saltGram = Math.min(appState.saltGoal, appState.saltGram + g);
+      saveState();
+      renderSaltUI();
+    }
+    function renderSaltUI() {
+      document.getElementById('saltTextVal').innerText = `${appState.saltGram.toFixed(1)} / ${appState.saltGoal.toFixed(1)} g`;
+      const pct = Math.min(100, (appState.saltGram / appState.saltGoal) * 100);
+      document.getElementById('saltProgressBar').style.width = `${pct}%`;
+    }
+
+    function renderSupplements() {
+      const container = document.getElementById('supplementsList');
+      container.innerHTML = '';
+
+      let takenCount = 0;
+
+      appState.supplements.forEach((s, idx) => {
+        if (s.taken) takenCount++;
+        container.innerHTML += `
+          <div class="bg-surface-card p-3 rounded-xl border border-borderDark flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <button onclick="toggleSuppTaken(${idx})" class="w-6 h-6 rounded-lg ${s.taken ? 'bg-emerald-500 text-black' : 'border border-borderDark text-transparent'} flex items-center justify-center text-xs font-bold">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <div>
+                <span class="text-xs font-bold ${s.taken ? 'line-through text-slate-500' : 'text-white'}">${s.name}</span>
+                <span class="text-[10px] text-slate-400 block">Stok: ${s.stock} Adet</span>
+              </div>
+            </div>
+            <button onclick="deleteSupp(${idx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        `;
+      });
+
+      document.getElementById('bugunSuppVal').innerText = `${takenCount} / ${appState.supplements.length}`;
+    }
+
+    function toggleSuppTaken(idx) {
+      appState.supplements[idx].taken = !appState.supplements[idx].taken;
+      if (appState.supplements[idx].taken && appState.supplements[idx].stock > 0) {
+        appState.supplements[idx].stock--;
+      }
+      saveState();
+      renderSupplements();
+    }
+    function openAddSuppModal() {
+      const name = prompt("Takviye Adı (örn: ZMA, BCAA):");
+      if (name) {
+        appState.supplements.push({ name: name, taken: false, stock: 30 });
+        saveState();
+        renderSupplements();
+      }
+    }
+    function deleteSupp(idx) {
+      appState.supplements.splice(idx, 1);
+      saveState();
+      renderSupplements();
+    }
+
+    /* ==========================================================================
+       TAB 4: TOOLS & CALCULATORS
+       ========================================================================== */
+    function calcBMI() {
+      const h = parseFloat(document.getElementById('bmiHeightInput').value) / 100;
+      const w = parseFloat(document.getElementById('bmiWeightInput').value);
+      if (!h || !w) return;
+
+      const bmi = (w / (h * h)).toFixed(1);
+      document.getElementById('toolBmiScore').innerText = bmi;
+      document.getElementById('bugunBmiVal').innerText = bmi;
+
+      let status = 'Normal';
+      let tagClass = 'bg-emerald-500/20 text-emerald-400';
+      if (bmi < 18.5) { status = 'Zayıf'; tagClass = 'bg-sky-500/20 text-sky-400'; }
+      else if (bmi >= 25 && bmi < 30) { status = 'Fazla Kilolu'; tagClass = 'bg-amber-500/20 text-amber-400'; }
+      else if (bmi >= 30) { status = 'Obez'; tagClass = 'bg-red-500/20 text-red-400'; }
+
+      document.getElementById('toolBmiTag').innerText = status;
+      document.getElementById('toolBmiTag').className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${tagClass}`;
+      document.getElementById('bugunBmiStatus').innerText = status;
+
+      const minW = Math.round(18.5 * h * h);
+      const maxW = Math.round(24.9 * h * h);
+      document.getElementById('toolIdealWeightRange').innerText = `${minW} - ${maxW} kg`;
+    }
+
+    function applyBmiToProfile() {
+      appState.userWeight = parseFloat(document.getElementById('bmiWeightInput').value) || 75;
+      appState.userHeight = parseFloat(document.getElementById('bmiHeightInput').value) || 178;
+      saveState();
+      alert("Profil boy & kilo güncellendi!");
+    }
+
+    function calcPlates() {
+      const target = parseFloat(document.getElementById('plateTargetInput').value) || 0;
+      const bar = parseFloat(document.getElementById('plateBarInput').value) || 20;
+
+      let sideWeight = (target - bar) / 2;
+      const resContainer = document.getElementById('platesVisualResult');
+
+      if (sideWeight <= 0) {
+        resContainer.innerHTML = `<span class="text-amber-400">Sadece çıplak bar (${bar} kg)</span>`;
+        return;
+      }
+
+      const availablePlates = [25, 20, 15, 10, 5, 2.5, 1.25];
+      let usedPlates = [];
+
+      availablePlates.forEach(p => {
+        while (sideWeight >= p) {
+          usedPlates.push(p);
+          sideWeight -= p;
+        }
+      });
+
+      resContainer.innerHTML = `<div class="mb-1 text-[11px] text-slate-400">Her Taraf için Plakalar:</div><div class="flex gap-1.5 flex-wrap">${usedPlates.map(p => `<span class="px-2 py-1 rounded bg-volt text-black font-black">${p}kg</span>`).join('')}</div>`;
+
+      // Warmup Sets Pyramid
+      const wContainer = document.getElementById('warmupPyramidList');
+      wContainer.innerHTML = `
+        <div class="flex justify-between"><span>%50 Isınma:</span> <strong>${Math.round(target * 0.5)} kg × 10 tekrar</strong></div>
+        <div class="flex justify-between"><span>%70 Hazırlık:</span> <strong>${Math.round(target * 0.7)} kg × 5 tekrar</strong></div>
+        <div class="flex justify-between"><span>%85 Çalışma Öncesi:</span> <strong>${Math.round(target * 0.85)} kg × 3 tekrar</strong></div>
+      `;
+    }
+
+    function calcCookedRaw() {
+      const food = document.getElementById('foodTypeSelect').value;
+      const weight = parseFloat(document.getElementById('cookedWeightInput').value) || 0;
+      let raw = weight;
+
+      // Shrink / Expansion Ratios
+      if (food === 'tavuk') raw = weight * 1.33; // 25% water loss
+      else if (food === 'kıyma') raw = weight * 1.40;
+      else if (food === 'pirinc') raw = weight * 0.35; // expands 3x
+      else if (food === 'makarna') raw = weight * 0.40;
+      else if (food === 'bulgur') raw = weight * 0.38;
+
+      document.getElementById('rawWeightResult').innerText = `${Math.round(raw)} gram (Çiğ)`;
+    }
+
+    function setIfProtocol(hours) {
+      appState.fastingSeconds = hours * 3600;
+      document.getElementById('ifTimerDisplay').innerText = `${hours}:00:00`;
+    }
+
+    function toggleFastingTimer() {
+      const btn = document.getElementById('ifToggleBtn');
+      if (appState.isFasting) {
+        clearInterval(appState.fastingInterval);
+        appState.isFasting = false;
+        btn.innerText = "Orucu Başlat";
+        btn.className = "mt-3 px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-xl active:scale-95 transition";
+        document.getElementById('ifStatusText').innerText = "Oruç Durduruldu";
+      } else {
+        appState.isFasting = true;
+        btn.innerText = "Orucu Bitir";
+        btn.className = "mt-3 px-5 py-2 bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs rounded-xl active:scale-95 transition";
+        document.getElementById('ifStatusText').innerText = "Oruç Süresi Devam Ediyor";
+
+        appState.fastingInterval = setInterval(() => {
+          if (appState.fastingSeconds > 0) {
+            appState.fastingSeconds--;
+            const h = String(Math.floor(appState.fastingSeconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((appState.fastingSeconds % 3600) / 60)).padStart(2, '0');
+            const s = String(appState.fastingSeconds % 60).padStart(2, '0');
+            document.getElementById('ifTimerDisplay').innerText = `${h}:${m}:${s}`;
+          }
+        }, 1000);
+      }
+    }
+
+    /* ==========================================================================
+       TAB 5: PROFILE & CHARTS LOGIC
+       ========================================================================== */
+    let weightChartInstance = null;
+    let prChartInstance = null;
+
+    function renderWeightChart() {
+      const ctx = document.getElementById('weightChart').getContext('2d');
+      if (weightChartInstance) weightChartInstance.destroy();
+
+      const labels = appState.weightHistory.map(w => w.date);
+      const data = appState.weightHistory.map(w => w.weight);
+
+      weightChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Kilo (kg)',
+            data: data,
+            borderColor: '#C8FF00',
+            backgroundColor: 'rgba(200, 255, 0, 0.1)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: '#C8FF00'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94A3B8', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderPRChart() {
+      const ctx = document.getElementById('prChart').getContext('2d');
+      if (prChartInstance) prChartInstance.destroy();
+
+      prChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['1 Eki', '15 Eki', '1 Kas', '15 Kas', '20 Kas'],
+          datasets: [{
+            label: '1RM Tahmini (kg)',
+            data: [70, 72.5, 75, 77.5, 80],
+            borderColor: '#38BDF8',
+            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94A3B8', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function promptLogWeight() {
+      const val = prompt("Bugünkü Kilo (kg):");
+      if (val) {
+        const num = parseFloat(val);
+        appState.userWeight = num;
+        appState.weightHistory.push({ date: 'Bugün', weight: num });
+        saveState();
+        renderWeightChart();
+      }
+    }
+
+    function renderInjuries() {
+      const container = document.getElementById('injuryList');
+      container.innerHTML = '';
+      appState.injuries.forEach((inj, idx) => {
+        container.innerHTML += `
+          <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold flex items-center gap-1">
+            <i class="fa-solid fa-bandage"></i> ${inj}
+            <button onclick="removeInjury(${idx})" class="ml-1 text-amber-200"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+          </span>
+        `;
+      });
+    }
+    function openAddInjuryModal() {
+      const inj = prompt("Ağrılı Bölge Adı (örn: Sol Diz, Sağ Omuz):");
+      if (inj) {
+        appState.injuries.push(inj);
+        saveState();
+        renderInjuries();
+      }
+    }
+    function removeInjury(idx) {
+      appState.injuries.splice(idx, 1);
+      saveState();
+      renderInjuries();
+    }
+
+    function exportDataJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+      const anchor = document.createElement('a');
+      anchor.setAttribute("href", dataStr);
+      anchor.setAttribute("download", `FitTakip_Yedek_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    }
+
+    function importDataJSON() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = event => {
+          try {
+            appState = JSON.parse(event.target.result);
+            saveState();
+            location.reload();
+          } catch(err) { alert("Geçersiz JSON dosyası!"); }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function resetAllData() {
+      if (confirm("Tüm kayıtlar silinecek. Emin misiniz?")) {
+        localStorage.removeItem('fitTakip_v21_state');
+        location.reload();
+      }
+    }
+
+    /* ==========================================================================
+       APP ONLOAD INITIALIZATION
+       ========================================================================== */
+    window.onload = function() {
+      loadState();
+      renderWeekStrip();
+      renderWaterUI();
+      renderSaltUI();
+      renderSupplements();
+      renderCardioLogs();
+      updateBugunCardioSummary();
+      calcBMI();
+      calcPlates();
+      calcCookedRaw();
+      renderInjuries();
+    };
+  </script>
+</body>
+</html>
