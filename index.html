@@ -2,13 +2,13 @@
 <html lang="tr" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="FitTakip" />
   <meta name="theme-color" content="#09090B" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2309090B'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%23CCFF00'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='%2309090B'%3EFT%3C/text%3E%3C/svg%3E" />
-  <title>FitTakip v24.1 — Sporcu Antrenman Takibi</title>
+  <title>FitTakip v24.2 — Sporcu Antrenman Takibi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -79,7 +79,7 @@
       background-color: var(--volt-bg);
       color: var(--volt-fg);
     }
-    .safe-top { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+    .safe-top { padding-top: calc(env(safe-area-inset-top, 0px) + 0.75rem); }
     .safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
     .rest-pill-pos { bottom: calc(4.75rem + env(safe-area-inset-bottom)); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -107,13 +107,13 @@
 <body class="min-h-screen">
   <div class="max-w-md mx-auto min-h-screen flex flex-col relative">
     <!-- TOP HEADER -->
-    <header class="sticky top-0 z-30 backdrop-blur-xl bg-[#F4F4F6]/85 dark:bg-[#09090B]/85 border-b border-black/5 dark:border-white/5 safe-top px-4 pb-3">
+    <header class="sticky top-0 z-30 bg-[#F4F4F6] dark:bg-[#09090B] border-b border-black/5 dark:border-white/5 safe-top px-4 pb-3">
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-xl bg-[#CCFF00] text-[#09090B] font-black text-xs flex items-center justify-center tracking-tighter shadow-sm">FT</div>
           <div class="flex items-center gap-1.5">
             <h1 class="text-base font-extrabold tracking-tight">FitTakip</h1>
-            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V24.1</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V24.2</span>
           </div>
         </div>
         <div class="flex items-center gap-1.5">
@@ -1756,7 +1756,8 @@
       // ==================== RENDER: TODAY ====================
       function renderToday() {
         const dObj = new Date(selectedDate + 'T12:00:00');
-        document.getElementById('btnHeaderToday').textContent = `${dObj.getDate()} ${MONTHS_TR[dObj.getMonth()].slice(0,3)}, ${DAYS_TR[dObj.getDay()].slice(0,3)}`;
+        const DAYS_ABBR = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+        document.getElementById('btnHeaderToday').textContent = `${dObj.getDate()} ${MONTHS_TR[dObj.getMonth()].slice(0,3)}, ${DAYS_ABBR[dObj.getDay()]}`;
 
         const monIdx = getMondayIdx(selectedDate);
         const monDate = addDaysISO(selectedDate, -monIdx);
