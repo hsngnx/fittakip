@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="FitTakip" />
   <meta name="theme-color" content="#09090B" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2309090B'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%23CCFF00'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='%2309090B'%3EFT%3C/text%3E%3C/svg%3E" />
-  <title>FitTakip v24.0 — Sporcu Antrenman Takibi</title>
+  <title>FitTakip v24.1 — Sporcu Antrenman Takibi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -113,7 +113,7 @@
           <div class="w-8 h-8 rounded-xl bg-[#CCFF00] text-[#09090B] font-black text-xs flex items-center justify-center tracking-tighter shadow-sm">FT</div>
           <div class="flex items-center gap-1.5">
             <h1 class="text-base font-extrabold tracking-tight">FitTakip</h1>
-            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V24.0</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V24.1</span>
           </div>
         </div>
         <div class="flex items-center gap-1.5">
@@ -1167,7 +1167,7 @@
       function isCloudReady() {
         return !!(cloudCfg.url && cloudCfg.key && cloudCfg.syncKey);
       }
-      function updateCloudUI(status) {
+      function updateCloudUI(status, errMsg) {
         const dot = document.getElementById('cloudStatusDot');
         const shortTxt = document.getElementById('cloudStatusShort');
         const sub = document.getElementById('cloudSyncSubtitle');
@@ -1189,7 +1189,7 @@
         } else if (status === 'error') {
           if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-500';
           if (shortTxt) shortTxt.textContent = 'Hata';
-          if (sub) sub.textContent = 'Bağlantı hatası — interneti veya anahtarları kontrol et';
+          if (sub) sub.textContent = errMsg ? 'Hata: ' + errMsg : 'Bağlantı hatası — interneti veya anahtarları kontrol et';
           if (badge) { badge.textContent = 'Hata'; badge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 shrink-0'; }
         } else {
           if (dot) dot.className = 'w-2 h-2 rounded-full bg-[#CCFF00]';
@@ -1200,11 +1200,23 @@
         }
       }
       function sbHeaders(extra) {
-        return Object.assign({
+        const h = {
           'apikey': cloudCfg.key,
-          'Authorization': 'Bearer ' + cloudCfg.key,
           'Content-Type': 'application/json'
-        }, extra || {});
+        };
+        if (cloudCfg.key && cloudCfg.key.startsWith('eyJ')) {
+          h['Authorization'] = 'Bearer ' + cloudCfg.key;
+        }
+        return Object.assign(h, extra || {});
+      }
+      async function parseSbError(res) {
+        let detail = '';
+        try {
+          const txt = await res.text();
+          const j = JSON.parse(txt);
+          detail = j.message || j.error || j.hint || txt.slice(0, 80);
+        } catch (e) {}
+        return `HTTP ${res.status}${detail ? ': ' + detail : ''}`;
       }
       async function pushToCloud(silent) {
         if (!isCloudReady() || !navigator.onLine) return false;
@@ -1221,7 +1233,7 @@
             headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
             body: JSON.stringify(payload)
           });
-          if (!res.ok) throw new Error('HTTP ' + res.status);
+          if (!res.ok) throw new Error(await parseSbError(res));
           cloudLastSyncAt = Date.now();
           cloudSyncing = false;
           updateCloudUI('ok');
@@ -1229,8 +1241,9 @@
           return true;
         } catch (e) {
           cloudSyncing = false;
-          updateCloudUI('error');
-          if (!silent) showToast('Bulut yedekleme hatası: URL/Key veya SQL tablosunu kontrol et');
+          const msg = e?.message || 'Bağlantı hatası';
+          updateCloudUI('error', msg);
+          if (!silent) showToast('Gönderme hatası (' + msg + ')');
           return false;
         }
       }
@@ -1244,11 +1257,10 @@
             method: 'GET',
             headers: sbHeaders()
           });
-          if (!res.ok) throw new Error('HTTP ' + res.status);
+          if (!res.ok) throw new Error(await parseSbError(res));
           const rows = await res.json();
           cloudSyncing = false;
           if (!Array.isArray(rows) || !rows.length || !rows[0].data) {
-            // No cloud record yet -> push local state to initialize cloud
             await pushToCloud(silent);
             return true;
           }
@@ -1274,8 +1286,9 @@
           }
         } catch (e) {
           cloudSyncing = false;
-          updateCloudUI('error');
-          if (!silent) showToast('Buluttan çekme hatası: Ayarları kontrol et');
+          const msg = e?.message || 'Bağlantı hatası';
+          updateCloudUI('error', msg);
+          if (!silent) showToast('Çekme hatası (' + msg + ')');
           return false;
         }
       }
