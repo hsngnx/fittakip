@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="FitTakip" />
   <meta name="theme-color" content="#09090B" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2309090B'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%23CCFF00'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='%2309090B'%3EFT%3C/text%3E%3C/svg%3E" />
-  <title>FitTakip v24.4 — Sporcu Antrenman Takibi</title>
+  <title>FitTakip v25.0 — Sporcu Antrenman Takibi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -113,7 +113,7 @@
           <div class="w-8 h-8 rounded-xl bg-[#CCFF00] text-[#09090B] font-black text-xs flex items-center justify-center tracking-tighter shadow-sm">FT</div>
           <div class="flex items-center gap-1.5">
             <h1 class="text-base font-extrabold tracking-tight">FitTakip</h1>
-            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V24.4</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V25.0</span>
           </div>
         </div>
         <div class="flex items-center gap-1.5">
@@ -373,9 +373,12 @@
         <!-- CARDIO SUB-VIEW -->
         <div id="wkPanel-cardio" class="hidden space-y-4">
           <div class="surface-card rounded-3xl p-4 space-y-4">
-            <div>
-              <h3 class="text-sm font-extrabold">Hızlı Kardiyo Girişi</h3>
-              <p class="text-[11px] text-zinc-400">Alet, süre ve hız değerini gir — bilimsel formülle kalori hesaplansın</p>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-extrabold">Hızlı Kardiyo Girişi</h3>
+                <p class="text-[11px] text-zinc-400">Alet, süre ve hız değerini gir — bilimsel formülle kalori hesaplansın</p>
+              </div>
+              <button type="button" data-sci-info="cardio" aria-label="Kardiyo formül kaynakları" class="w-5 h-5 rounded-full surface-elev text-[10px] font-black text-zinc-400 shrink-0 flex items-center justify-center">ⓘ</button>
             </div>
             <!-- Activity Chips -->
             <div id="cardioTypeChips" class="grid grid-cols-3 gap-1.5">
@@ -446,7 +449,11 @@
           <div class="flex items-center justify-between">
             <div>
               <h3 class="text-base font-extrabold">Su Takibi</h3>
-              <p class="text-xs text-zinc-400">Günlük hedef: <span id="waterGoalLabel" class="tabular">4000</span> ml</p>
+              <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+                <p class="text-xs text-zinc-400">Günlük hedef: <span id="waterGoalLabel" class="tabular">4000</span> ml</p>
+                <span id="waterScienceBadge" class="text-[10px] font-bold text-sky-400 tabular"></span>
+                <button type="button" data-sci-info="hydration" aria-label="Su bilimsel kaynağı" class="w-4 h-4 rounded-full surface-elev text-[10px] font-black text-zinc-400 inline-flex items-center justify-center">ⓘ</button>
+              </div>
             </div>
             <button id="btnWaterUndo" type="button" class="px-3 py-1.5 rounded-xl surface-elev text-xs font-bold text-zinc-400">Geri Al</button>
           </div>
@@ -488,13 +495,24 @@
 
         <!-- Supplements Card -->
         <div class="surface-card rounded-3xl p-5 space-y-3.5">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-2">
             <div>
-              <h3 class="text-base font-extrabold">Takviyeler</h3>
-              <p class="text-xs text-zinc-400">Günlük kontrol &amp; stok takibi</p>
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-base font-extrabold">Takviyeler</h3>
+                <button type="button" data-sci-info="supplements" aria-label="ISSN takviye rehberi" class="w-4 h-4 rounded-full surface-elev text-[10px] font-black text-zinc-400 inline-flex items-center justify-center">ⓘ</button>
+              </div>
+              <p class="text-xs text-zinc-400">Günlük kontrol &amp; stok takibi (ISSN)</p>
             </div>
             <span id="suppHeaderCount" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500 tabular">0 / 5</span>
           </div>
+          <details class="text-xs">
+            <summary class="text-[11px] font-bold text-emerald-500 dark:text-emerald-400 cursor-pointer">ISSN Kanıt Temelli Dozaj Rehberi</summary>
+            <div class="mt-2 p-3 rounded-2xl surface-elev space-y-1.5 text-[11px] text-zinc-400">
+              <p><strong class="text-zinc-800 dark:text-zinc-200">Kreatin Monohidrat:</strong> 0.03–0.05 g/kg/gün (genelde 3–5 g); yükleme şart değil <span class="text-zinc-500">(Kreider et al., 2017)</span>.</p>
+              <p><strong class="text-zinc-800 dark:text-zinc-200">Protein (Whey/Diyet):</strong> Kas gelişimi için 1.6–2.2 g/kg/gün <span class="text-zinc-500">(Morton et al., 2018)</span>.</p>
+              <p><strong class="text-zinc-800 dark:text-zinc-200">Kafein:</strong> 3–6 mg/kg, antrenmandan 45–60 dk önce <span class="text-zinc-500">(Guest et al., 2021)</span>.</p>
+            </div>
+          </details>
           <div id="suppListContainer" class="space-y-2"></div>
           <div class="pt-2 border-t border-black/5 dark:border-white/5 grid grid-cols-12 gap-1.5">
             <input id="newSuppName" type="text" placeholder="Yeni takviye..." class="col-span-6 rounded-xl surface-elev px-3 py-2 text-xs font-semibold" />
@@ -530,6 +548,23 @@
               <div id="toolBmiPointer" class="hidden absolute top-0 bottom-0 w-1.5 bg-white shadow ring-1 ring-black/40 rounded-full" style="left:50%"></div>
             </div>
             <p id="toolBmiIdealText" class="text-xs text-zinc-400">Boy ve kilo girince ideal aralığın hesaplanır.</p>
+          </div>
+          <div class="pt-3 border-t border-black/5 dark:border-white/5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold">Bel/Boy Oranı (WHtR) &amp; Yağ %</span>
+              <button type="button" data-sci-info="whtr" aria-label="WHtR ve US Navy kaynakları" class="w-4 h-4 rounded-full surface-elev text-[10px] font-black text-zinc-400 inline-flex items-center justify-center">ⓘ</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-zinc-400 mb-1">Bel Çevresi (cm)</label>
+                <input id="toolWaistInput" type="number" inputmode="decimal" step="0.5" min="40" max="200" placeholder="cm" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-zinc-400 mb-1">Boyun Çevresi (cm)</label>
+                <input id="toolNeckInput" type="number" inputmode="decimal" step="0.5" min="20" max="80" placeholder="cm" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
+              </div>
+            </div>
+            <p id="toolWhtrResult" class="text-xs text-zinc-400 tabular">Bel çevresi girince WHtR (&lt;0.50 hedef) ve yağ oranı tahmini çıkar.</p>
           </div>
         </div>
 
@@ -606,12 +641,16 @@
           <div class="surface-card rounded-3xl p-4 space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-sm font-extrabold">Kilo &amp; 7 Günlük Trend</h3>
+                <div class="flex items-center gap-1.5">
+                  <h3 class="text-sm font-extrabold">Kilo &amp; 7 Günlük Trend</h3>
+                  <button type="button" data-sci-info="weight" aria-label="Kilo trendi bilimsel kaynağı" class="w-4 h-4 rounded-full surface-elev text-[10px] font-black text-zinc-400 inline-flex items-center justify-center">ⓘ</button>
+                </div>
                 <p id="weightTrendSummary" class="text-[11px] text-zinc-400">Günlük dalgalanmalar yerine 7 günlük ortalamayı izle</p>
               </div>
               <span id="weightLatestBadge" class="text-sm font-black text-rose-500 tabular">—</span>
             </div>
             <div class="relative h-48"><canvas id="weightTrendChart"></canvas></div>
+            <p id="weightRateComment" class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-300 bg-black/[0.03] dark:bg-white/[0.04] rounded-2xl px-3 py-2">Haftalık değişim hızı en az 2 ölçümle yorumlanır (Helms et al., 2014).</p>
             <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-black/5 dark:border-white/5">
               <input id="profWeightInput" type="number" inputmode="decimal" step="0.1" placeholder="Kilo kg" class="col-span-2 rounded-xl surface-elev px-3 py-2 text-xs font-extrabold tabular" />
               <input id="profWaistInput" type="number" inputmode="decimal" step="0.5" placeholder="Bel cm" class="rounded-xl surface-elev px-2 py-2 text-xs tabular" />
@@ -667,17 +706,24 @@
         <!-- SUB 2: PERFORMANS (KAS GRUBU SET SAYACI & PR / 1RM) -->
         <div id="profPanel-perf" class="hidden space-y-4">
           <div class="surface-card rounded-3xl p-4 space-y-3">
-            <div>
-              <h3 class="text-sm font-extrabold">Haftalık Kas Grubu Set Sayacı</h3>
-              <p class="text-[11px] text-zinc-400">Hipertrofi için ideal aralık: haftada 10–20 çalışma seti</p>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-extrabold">Haftalık Kas Grubu Set Sayacı</h3>
+                <p id="muscleVolScienceSub" class="text-[11px] text-zinc-400">10–20 set hipertrofi • 4–9 bakım • 20+ yüksek yorgunluk</p>
+              </div>
+              <button type="button" data-sci-info="volume" aria-label="Kas hacmi ve RIR kaynakları" class="w-5 h-5 rounded-full surface-elev text-[10px] font-black text-zinc-400 shrink-0 flex items-center justify-center">ⓘ</button>
             </div>
+            <p id="weeklyRirComment" class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-300 bg-black/[0.03] dark:bg-white/[0.04] rounded-2xl px-3 py-2">RIR Analizi: Bu hafta RIR kaydı henüz yok (Robinson et al., 2024).</p>
             <div id="muscleSetBars" class="space-y-2.5"></div>
           </div>
 
           <div class="surface-card rounded-3xl p-4 space-y-3">
             <div class="flex items-center justify-between gap-2">
-              <h3 class="text-sm font-extrabold">PR &amp; Tahmini 1RM</h3>
-              <select id="perfExSelect" class="max-w-[180px] rounded-xl surface-elev px-2.5 py-1.5 text-xs font-bold"></select>
+              <div class="flex items-center gap-1.5 min-w-0">
+                <h3 class="text-sm font-extrabold truncate">PR &amp; 1RM (Epley)</h3>
+                <button type="button" data-sci-info="epley" aria-label="Epley 1RM kaynağı" class="w-4 h-4 rounded-full surface-elev text-[10px] font-black text-zinc-400 shrink-0 inline-flex items-center justify-center">ⓘ</button>
+              </div>
+              <select id="perfExSelect" class="max-w-[170px] rounded-xl surface-elev px-2.5 py-1.5 text-xs font-bold"></select>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center">
               <div class="p-2.5 rounded-2xl surface-elev"><p class="text-[10px] text-zinc-400">En Ağır</p><p id="perfMaxW" class="text-sm font-black tabular mt-0.5">—</p></div>
@@ -928,6 +974,17 @@
         <button id="btnCloseExHist" type="button" class="w-8 h-8 rounded-full surface-elev font-bold text-xs">✕</button>
       </div>
       <div id="exHistBody" class="p-4 space-y-2.5 max-h-[65dvh] overflow-y-auto text-xs"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: SCIENTIFIC EVIDENCE & SOURCE INFO -->
+  <div id="sciInfoModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="surface-card rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+      <div class="px-4 py-3.5 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-2">
+        <h3 id="sciInfoTitle" class="text-sm font-extrabold truncate">Bilimsel Kaynak</h3>
+        <button id="btnCloseSciInfo" type="button" class="w-8 h-8 rounded-full surface-elev font-bold text-xs">✕</button>
+      </div>
+      <div id="sciInfoBody" class="p-4 space-y-2.5 text-xs leading-relaxed text-zinc-500 dark:text-zinc-300"></div>
     </div>
   </div>
 
@@ -1351,7 +1408,7 @@
         if (!m) return;
         m.classList.add('hidden');
         m.classList.remove('flex');
-        const anyOpen = ['videoModal','exPickerModal','exActionSheet','exHistoryModal','summaryModal']
+        const anyOpen = ['videoModal','exPickerModal','exActionSheet','exHistoryModal','sciInfoModal','summaryModal']
           .some(mid => !document.getElementById(mid).classList.contains('hidden'));
         if (!anyOpen) document.body.classList.remove('modal-open');
       }
@@ -2499,11 +2556,27 @@
         state.water[selectedDate].push(ml);
         saveState(); renderAll(); showToast(`+${ml} ml su eklendi`);
       }
+      function getRecommendedWaterMl() {
+        const bw = getLatestWeight();
+        if (!bw) return null;
+        const dw = getDayWorkout(selectedDate);
+        const wkMin = dw && !dw.isOffDay ? Math.round((dw.durationSec || 0) / 60) : 0;
+        const carMin = (state.cardio[selectedDate] || []).reduce((a, x) => a + (Number(x.min) || 0), 0);
+        const activeMin = wkMin + carMin;
+        // NASEM/ACSM practical hydration estimate: ~35 ml/kg base + ~350 ml per 30 min active training
+        return Math.round((bw * 35 + (activeMin / 30) * 350) / 50) * 50;
+      }
+
       function renderHydration() {
         const wTotal = (state.water[selectedDate] || []).reduce((a, b) => a + b, 0);
-        const wGoal = Number(state.profile.waterGoal) || 4000;
+        const recMl = getRecommendedWaterMl();
+        const wGoal = recMl || Number(state.profile.waterGoal) || 4000;
         const pct = Math.min(100, Math.round((wTotal / Math.max(1, wGoal)) * 100));
         document.getElementById('waterGoalLabel').textContent = wGoal;
+        const sciBadge = document.getElementById('waterScienceBadge');
+        if (sciBadge) {
+          sciBadge.textContent = recMl ? `(${recMl/1000}L • ${getLatestWeight()}kg NASEM/ACSM)` : '(Sabit hedef)';
+        }
         document.getElementById('waterRingVal').textContent = wTotal;
         document.getElementById('waterRingPct').textContent = `${pct}%`;
         document.getElementById('waterRing').style.strokeDashoffset = 263.9 * (1 - pct / 100);
@@ -2571,7 +2644,11 @@
         const wInp = document.getElementById('toolBmiWeight');
         if (!hInp.value && state.profile.height) hInp.value = state.profile.height;
         if (!wInp.value && getLatestWeight()) wInp.value = getLatestWeight();
+        const latestLog = [...state.weightLogs].sort((a, b) => b.date.localeCompare(a.date))[0];
+        const waistInp = document.getElementById('toolWaistInput');
+        if (!waistInp.value && latestLog && latestLog.waist) waistInp.value = latestLog.waist;
         updateBmiTool();
+        updateWhtrTool();
         updatePlateTool();
         updateIfTool();
         updateConvTool();
@@ -2599,6 +2676,28 @@
           ptr.classList.add('hidden');
         }
       }
+      function updateWhtrTool() {
+        const h = Number(document.getElementById('toolBmiHeight').value) || 0;
+        const w = Number(document.getElementById('toolBmiWeight').value) || 0;
+        const waist = Number(document.getElementById('toolWaistInput').value) || 0;
+        const neck = Number(document.getElementById('toolNeckInput').value) || 0;
+        const out = document.getElementById('toolWhtrResult');
+        if (!waist || !h) {
+          out.textContent = 'Bel çevresi girince WHtR (<0.50 hedef) ve yağ oranı tahmini çıkar.';
+          return;
+        }
+        const ratio = waist / h;
+        const whtrTag = ratio < 0.50 ? 'Sağlıklı (<0.50)' : ratio < 0.60 ? 'Artmış Risk (0.50–0.59)' : 'Yüksek Risk (≥0.60)';
+        let bfTxt = '';
+        if (neck > 0 && (waist - neck) > 0) {
+          // US Navy circumference formula (Hodgdon & Beckett, 1984)
+          const log10 = x => Math.log(x) / Math.LN10;
+          const bf = 86.010 * log10(waist - neck) - 70.041 * log10(h) + 36.76;
+          if (bf > 3 && bf < 65) bfTxt = ` • Tahmini Yağ: %${bf.toFixed(1)} (US Navy)`;
+        }
+        out.textContent = `WHtR: ${ratio.toFixed(2)} (${whtrTag})${bfTxt}`;
+      }
+
       function updatePlateTool() {
         const target = Number(document.getElementById('plateTargetInput').value) || 0;
         const bar = Number(document.getElementById('plateBarSelect').value) || 0;
@@ -2654,11 +2753,25 @@
         const sorted = [...state.weightLogs].sort((a, b) => a.date.localeCompare(b.date));
         const latest = sorted.length ? sorted[sorted.length - 1] : null;
         document.getElementById('weightLatestBadge').textContent = latest ? `${latest.weight.toFixed(1)} kg` : '—';
+        const rateEl = document.getElementById('weightRateComment');
         if (sorted.length >= 2) {
           const avg7 = sorted.slice(-7).reduce((a, b) => a + b.weight, 0) / Math.min(7, sorted.length);
           document.getElementById('weightTrendSummary').textContent = `7 günlük hareketli ortalama: ${avg7.toFixed(1)} kg`;
+          const last = sorted[sorted.length - 1];
+          const prev = sorted[Math.max(0, sorted.length - 8)];
+          const daysDiff = Math.max(1, (Date.parse(last.date + 'T12:00:00') - Date.parse(prev.date + 'T12:00:00')) / 86400000);
+          const weeklyDelta = ((last.weight - prev.weight) / daysDiff) * 7;
+          const weeklyPct = (weeklyDelta / Math.max(1, prev.weight)) * 100;
+          let comment = '';
+          if (weeklyPct < -1.0) comment = `Haftalık ${weeklyPct.toFixed(2)}% (${weeklyDelta.toFixed(2)} kg/hf) — Hızlı kayıp; protein ve direnç antrenmanıyla kas kütlesini koru (Helms et al., 2014).`;
+          else if (weeklyPct <= -0.25) comment = `Haftalık ${weeklyPct.toFixed(2)}% (${weeklyDelta.toFixed(2)} kg/hf) — Dengeli yağ kaybı aralığı (Helms et al., 2014).`;
+          else if (weeklyPct <= 0.25) comment = `Haftalık ${weeklyPct >= 0 ? '+' : ''}${weeklyPct.toFixed(2)}% (${weeklyDelta >= 0 ? '+' : ''}${weeklyDelta.toFixed(2)} kg/hf) — Kompozisyon / bakım (recomp) bölgesi.`;
+          else if (weeklyPct <= 0.5) comment = `Haftalık +${weeklyPct.toFixed(2)}% (+${weeklyDelta.toFixed(2)} kg/hf) — Temiz kas kazanımı (Lean Bulk) aralığı.`;
+          else comment = `Haftalık +${weeklyPct.toFixed(2)}% (+${weeklyDelta.toFixed(2)} kg/hf) — Hızlı artış; fazla yağ birikimine dikkat.`;
+          if (rateEl) rateEl.textContent = comment;
         } else {
           document.getElementById('weightTrendSummary').textContent = 'Kayıt girdikçe 7 günlük trend çizgisi oluşur';
+          if (rateEl) rateEl.textContent = 'Haftalık değişim hızı en az 2 ölçümle yorumlanır (Helms et al., 2014).';
         }
 
         const isDark = state.theme !== 'light';
@@ -2742,13 +2855,32 @@
         const monIdx = getMondayIdx(selectedDate);
         const monDate = addDaysISO(selectedDate, -monIdx);
         const counts = { 'Göğüs': 0, 'Sırt': 0, 'Bacak': 0, 'Omuz': 0, 'Kol': 0, 'Karın': 0 };
+        const rirVals = [];
         for (let i = 0; i < 7; i++) {
           const dw = state.workouts[addDaysISO(monDate, i)];
           if (dw) (dw.exercises || []).forEach(ex => {
-            if (counts[ex.group] !== undefined) {
-              counts[ex.group] += (ex.sets || []).filter(s => s.done && s.type !== 'I').length;
-            }
+            (ex.sets || []).forEach(s => {
+              if (s.done && s.type !== 'I') {
+                if (counts[ex.group] !== undefined) counts[ex.group]++;
+                if (s.rir !== '' && s.rir !== undefined) {
+                  rirVals.push(s.rir === '3+' ? 3.5 : Number(s.rir));
+                }
+              }
+            });
           });
+        }
+        const rirEl = document.getElementById('weeklyRirComment');
+        if (rirEl) {
+          if (rirVals.length) {
+            const avgRir = rirVals.reduce((a, b) => a + b, 0) / rirVals.length;
+            let rirAdvice = '';
+            if (avgRir < 1.0) rirAdvice = 'Tükenişe çok yakın; MSS yorgunluğunu izle.';
+            else if (avgRir <= 2.5) rirAdvice = 'Hipertrofi için yüksek uyaran / yönetilebilir yorgunluk bölgesi.';
+            else rirAdvice = 'Kas uyaranını artırmak için bazı setlerde RIR 1–2 seviyesine yaklaşabilirsin.';
+            rirEl.textContent = `RIR Ortalaması: ${avgRir.toFixed(1)} (${rirVals.length} set) — ${rirAdvice} (Robinson et al., 2024).`;
+          } else {
+            rirEl.textContent = 'RIR Analizi: Bu hafta RIR kaydı henüz yok (Robinson et al., 2024).';
+          }
         }
         document.getElementById('muscleSetBars').innerHTML = Object.entries(counts).map(([grp, cnt]) => {
           const pct = Math.min(100, Math.round((cnt / 20) * 100));
@@ -2981,7 +3113,7 @@
         }, 30000);
 
         // Backdrop click & Escape to close all modals
-        ['videoModal','exPickerModal','exActionSheet','exHistoryModal','summaryModal'].forEach(id => {
+        ['videoModal','exPickerModal','exActionSheet','exHistoryModal','sciInfoModal','summaryModal'].forEach(id => {
           document.getElementById(id).addEventListener('click', e => {
             if (e.target.id === id) {
               if (id === 'videoModal') closeVideoModal();
@@ -3299,6 +3431,76 @@
           saveState(); renderExCatalog(); showToast('Hareket listeye eklendi');
         });
         document.getElementById('btnCloseExHist').addEventListener('click', () => closeModal('exHistoryModal'));
+
+        const SCIENCE_SOURCES = {
+          cardio: {
+            title: 'Kardiyo Kalori & MET Kaynakları',
+            html: `
+              <p><strong>ACSM Yürüyüş &amp; Koşu Denklemleri:</strong> VO₂ (mL/kg/dk) hız (m/dk) ve eğim kesrine göre hesaplanır; 1 MET ≈ 3.5 mL/kg/dk ve 200 mL O₂ ≈ 1 kcal kabul edilir (American College of Sports Medicine).</p>
+              <p><strong>Bisiklet &amp; Eliptik:</strong> Ainsworth et al. <em>Compendium of Physical Activities</em> MET değerleri ve hız/direnç eğrileri baz alınır.</p>
+              <p><strong>Kürek:</strong> Concept2 ergometre güç formülü (<em>P = 2.80 × v³</em>, Watt) ve ~%23 brüt mekanik verim + bazal metabolizma ile tahmin edilir.</p>
+            `
+          },
+          hydration: {
+            title: 'Su &amp; Sıvı İhtiyacı Kaynağı',
+            html: `
+              <p><strong>NASEM &amp; ACSM:</strong> Vücut ağırlığına dayalı bazal sıvı ihtiyacı (~35 ml/kg) ve egzersiz süresine eklenen terleme telafisi (~350 ml / 30 dk) pratik saha rehberi olarak kullanılır.</p>
+              <p><strong>Tuz / Elektrolit:</strong> Terle kaybedilen sodyumun yerine konması için günlük 8 g hedef referans alınır (Profil ayarlarından özelleştirilebilir).</p>
+            `
+          },
+          supplements: {
+            title: 'ISSN Takviye Rehberi',
+            html: `
+              <p><strong>Kreatin Monohidrat:</strong> Kreider et al. (2017), <em>JISSN</em> — Günlük 3–5 g (veya 0.03–0.05 g/kg) kas kreatin depolarını doldurur ve korur.</p>
+              <p><strong>Protein:</strong> Morton et al. (2018), <em>Br J Sports Med</em> — Direnç antrenmanında kas kütlesi/kuvvet kazanımı için ~1.6–2.2 g/kg/gün protein önerilir.</p>
+              <p><strong>Kafein:</strong> Guest et al. (2021), <em>JISSN</em> — Performans artışı için 3–6 mg/kg doz, antrenmandan ~45–60 dk önce.</p>
+            `
+          },
+          whtr: {
+            title: 'Bel/Boy Oranı (WHtR) &amp; US Navy',
+            html: `
+              <p><strong>WHtR (&lt;0.50):</strong> Ashwell &amp; Gibson (2016) ve NICE kılavuzlarına göre bel çevresinin boyun yarısından az olması kardiyometabolik riskin düşük olduğuna işaret eder.</p>
+              <p><strong>US Navy Çevre Formülü:</strong> Hodgdon &amp; Beckett (1984) — Çevre ölçümlerinden pratik vücut yağ yüzdesi tahmini sağlar (DEXA kadar hassas değildir).</p>
+            `
+          },
+          weight: {
+            title: 'Kilo Trendi &amp; Hız Kaynağı',
+            html: `
+              <p><strong>Helms et al. (2014), <em>JISSN</em>:</strong> Doğal sporcularda kas kütlesini koruyarak yağ yakımı için haftalık vücut ağırlığının ~%0.5–1.0'i civarında ilerleme önerilir.</p>
+              <p>7 günlük hareketli ortalama, su ve glikojen dalgalanmalarını filtreleyerek gerçek trendi gösterir.</p>
+            `
+          },
+          volume: {
+            title: 'Haftalık Set Hacmi &amp; RIR Kaynakları',
+            html: `
+              <p><strong>Schoenfeld et al. (2017) &amp; Pelland et al. (2024):</strong> Haftada kas grubu başına 10–20 kaliteli set hipertrofi için yaygın referans aralığıdır; 20+ set bireysel toparlanmaya göre yorgunluk yaratabilir.</p>
+              <p><strong>RIR (Repetitions in Reserve):</strong> Zourdos et al. / Robinson et al. (2024) — Set sonunda bırakılan tekrar sayısı (RIR) eforu ve yorgunluğu yönetmeye yardımcı olur.</p>
+            `
+          },
+          epley: {
+            title: 'Epley 1RM Tahmin Formülü',
+            html: `
+              <p><strong>Formül:</strong> <code>1RM = Ağırlık × (1 + Tekrar / 30)</code> (Epley, 1985).</p>
+              <p>Düşük-orta tekrar aralıklarında (özellikle 1–10 tekrar) en güvenilirdir; çok yüksek tekrarlarda sapma artabilir.</p>
+            `
+          }
+        };
+
+        document.querySelectorAll('[data-sci-info]').forEach(btn => btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const key = e.currentTarget.dataset.sciInfo;
+          const item = SCIENCE_SOURCES[key];
+          if (!item) return;
+          document.getElementById('sciInfoTitle').textContent = item.title;
+          document.getElementById('sciInfoBody').innerHTML = item.html;
+          openModal('sciInfoModal');
+        }));
+        document.getElementById('btnCloseSciInfo').addEventListener('click', () => closeModal('sciInfoModal'));
+        document.getElementById('sciInfoModal').addEventListener('click', e => {
+          if (e.target.id === 'sciInfoModal') closeModal('sciInfoModal');
+        });
+        document.getElementById('toolWaistInput').addEventListener('input', updateWhtrTool);
+        document.getElementById('toolNeckInput').addEventListener('input', updateWhtrTool);
 
         // Tools Listeners
         document.getElementById('toolBmiHeight').addEventListener('input', updateBmiTool);
