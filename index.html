@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="FitTakip" />
   <meta name="theme-color" content="#09090B" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2309090B'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%23CCFF00'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='%2309090B'%3EFT%3C/text%3E%3C/svg%3E" />
-  <title>FitTakip v23.4 — Sporcu Antrenman Takibi</title>
+  <title>FitTakip v24.0 — Sporcu Antrenman Takibi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -113,10 +113,14 @@
           <div class="w-8 h-8 rounded-xl bg-[#CCFF00] text-[#09090B] font-black text-xs flex items-center justify-center tracking-tighter shadow-sm">FT</div>
           <div class="flex items-center gap-1.5">
             <h1 class="text-base font-extrabold tracking-tight">FitTakip</h1>
-            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V23.4</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V24.0</span>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
+          <button id="btnHeaderCloud" type="button" title="Bulut Senkronizasyon Durumu" class="h-8 px-2 rounded-full surface-elev flex items-center gap-1.5 text-[10px] font-extrabold text-zinc-400">
+            <span id="cloudStatusDot" class="w-2 h-2 rounded-full bg-zinc-500"></span>
+            <span id="cloudStatusShort" class="hidden sm:inline">Yerel</span>
+          </button>
           <button id="btnHeaderToday" type="button" class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white px-2 py-1 rounded-lg transition tabular">Bugün</button>
           <button id="btnThemeToggle" type="button" aria-label="Tema Değiştir" class="w-8 h-8 rounded-full surface-elev flex items-center justify-center text-zinc-700 dark:text-[#CCFF00]">
             <svg id="iconSun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"/></svg>
@@ -718,6 +722,37 @@
             <button id="btnSaveBasicProfile" type="button" class="w-full py-2.5 rounded-xl btn-volt text-xs font-extrabold">Hedefleri Kaydet</button>
           </div>
 
+          <!-- Supabase Cloud Sync -->
+          <div class="surface-card rounded-3xl p-4 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-extrabold flex items-center gap-1.5"><span>☁️</span><span>Supabase Bulut Yedekleme</span></h3>
+                <p id="cloudSyncSubtitle" class="text-[11px] text-zinc-400">Bağlı değil — veriler sadece bu cihazda</p>
+              </div>
+              <span id="cloudSyncBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full surface-elev text-zinc-400 shrink-0">Kapalı</span>
+            </div>
+            <div class="space-y-2">
+              <div>
+                <label class="block text-[10px] font-bold text-zinc-400 mb-1">Supabase Project URL</label>
+                <input id="inpSbUrl" type="url" placeholder="https://xxxx.supabase.co" class="w-full rounded-xl surface-elev px-3 py-2 text-xs font-mono" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-zinc-400 mb-1">Anon Public Key</label>
+                <input id="inpSbKey" type="password" placeholder="eyJhbGciOiJIUzI1NiIs..." class="w-full rounded-xl surface-elev px-3 py-2 text-xs font-mono" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-zinc-400 mb-1">Kişisel Senkron Kodu (Cihazlar arası ortak şifre)</label>
+                <input id="inpSbSyncKey" type="text" placeholder="ornek: hasan-fittakip-2026" class="w-full rounded-xl surface-elev px-3 py-2 text-xs font-bold" />
+              </div>
+            </div>
+            <button id="btnCloudConnect" type="button" class="w-full py-2.5 rounded-xl btn-volt text-xs font-extrabold">☁️ Bağlan ve Eşitle</button>
+            <div id="cloudActionsRow" class="hidden grid grid-cols-3 gap-1.5 pt-1">
+              <button id="btnCloudPush" type="button" class="py-2 rounded-xl surface-elev text-[11px] font-extrabold">↑ Gönder</button>
+              <button id="btnCloudPull" type="button" class="py-2 rounded-xl surface-elev text-[11px] font-extrabold">↓ Çek</button>
+              <button id="btnCloudDisconnect" type="button" class="py-2 rounded-xl bg-rose-500/10 text-rose-500 text-[11px] font-bold">Kes</button>
+            </div>
+          </div>
+
           <!-- Backup & Reset -->
           <div class="surface-card rounded-3xl p-4 space-y-2.5">
             <h3 class="text-sm font-extrabold">Veri Yedekleme</h3>
@@ -917,6 +952,7 @@
       'use strict';
 
       const STORAGE_KEY = 'fittakip_v23_state';
+      const CLOUD_CFG_KEY = 'fittakip_supabase_cfg';
       const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
       const DAYS_SHORT = ['PZT','SAL','ÇAR','PER','CUM','CMT','PAZ'];
       const DAYS_TR = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
@@ -1041,7 +1077,8 @@
           injuries: [],
           fastingStart: null,
           activeSw: null,   // { date, baseSec, startedAt }
-          activeRest: null  // { endAt, paused, remainingSec }
+          activeRest: null, // { endAt, paused, remainingSec }
+          lastModified: 0
         };
       }
 
@@ -1060,6 +1097,10 @@
       let swSec = 0, swRunning = false, swStartedAt = null, swBaseSec = 0, swInt = null, swDate = null;
       let wakeLockWanted = false, wakeLockSentinel = null;
       let saveDebounceTimer = null;
+      let cloudPushTimer = null;
+      let cloudSyncing = false;
+      let cloudLastSyncAt = null;
+      let cloudCfg = { url: '', key: '', syncKey: '' };
       let undoCallback = null;
 
       // Modal targets
@@ -1105,10 +1146,150 @@
           }
         } catch (e) {}
       }
-      function saveState() {
+      function loadCloudCfg() {
+        try {
+          const raw = localStorage.getItem(CLOUD_CFG_KEY);
+          if (raw) {
+            const p = JSON.parse(raw);
+            if (p && typeof p === 'object') {
+              cloudCfg = {
+                url: String(p.url || '').trim().replace(/\/+$/, ''),
+                key: String(p.key || '').trim(),
+                syncKey: String(p.syncKey || '').trim()
+              };
+            }
+          }
+        } catch (e) {}
+      }
+      function saveCloudCfg() {
+        try { localStorage.setItem(CLOUD_CFG_KEY, JSON.stringify(cloudCfg)); } catch (e) {}
+      }
+      function isCloudReady() {
+        return !!(cloudCfg.url && cloudCfg.key && cloudCfg.syncKey);
+      }
+      function updateCloudUI(status) {
+        const dot = document.getElementById('cloudStatusDot');
+        const shortTxt = document.getElementById('cloudStatusShort');
+        const sub = document.getElementById('cloudSyncSubtitle');
+        const badge = document.getElementById('cloudSyncBadge');
+        const actions = document.getElementById('cloudActionsRow');
+        const ready = isCloudReady();
+        if (actions) actions.classList.toggle('hidden', !ready);
+        if (!ready) {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-zinc-500';
+          if (shortTxt) shortTxt.textContent = 'Yerel';
+          if (sub) sub.textContent = 'Bağlı değil — veriler sadece bu cihazda';
+          if (badge) { badge.textContent = 'Kapalı'; badge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full surface-elev text-zinc-400 shrink-0'; }
+          return;
+        }
+        if (status === 'syncing') {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+          if (shortTxt) shortTxt.textContent = 'Eşitleniyor';
+          if (badge) { badge.textContent = 'Eşitleniyor...'; badge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 shrink-0'; }
+        } else if (status === 'error') {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+          if (shortTxt) shortTxt.textContent = 'Hata';
+          if (sub) sub.textContent = 'Bağlantı hatası — interneti veya anahtarları kontrol et';
+          if (badge) { badge.textContent = 'Hata'; badge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 shrink-0'; }
+        } else {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-[#CCFF00]';
+          if (shortTxt) shortTxt.textContent = 'Bulut ✓';
+          const tStr = cloudLastSyncAt ? new Date(cloudLastSyncAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '';
+          if (sub) sub.textContent = tStr ? `Otomatik eşitleme aktif • Son: ${tStr}` : 'Otomatik eşitleme aktif';
+          if (badge) { badge.textContent = 'Bağlı ✓'; badge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#CCFF00]/15 text-zinc-800 dark:text-[#CCFF00] shrink-0'; }
+        }
+      }
+      function sbHeaders(extra) {
+        return Object.assign({
+          'apikey': cloudCfg.key,
+          'Authorization': 'Bearer ' + cloudCfg.key,
+          'Content-Type': 'application/json'
+        }, extra || {});
+      }
+      async function pushToCloud(silent) {
+        if (!isCloudReady() || !navigator.onLine) return false;
+        cloudSyncing = true;
+        updateCloudUI('syncing');
+        try {
+          const payload = {
+            sync_key: cloudCfg.syncKey,
+            data: state,
+            updated_at: new Date(state.lastModified || Date.now()).toISOString()
+          };
+          const res = await fetch(`${cloudCfg.url}/rest/v1/fittakip_sync`, {
+            method: 'POST',
+            headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          cloudLastSyncAt = Date.now();
+          cloudSyncing = false;
+          updateCloudUI('ok');
+          if (!silent) showToast('☁️ Buluta yedeklendi!');
+          return true;
+        } catch (e) {
+          cloudSyncing = false;
+          updateCloudUI('error');
+          if (!silent) showToast('Bulut yedekleme hatası: URL/Key veya SQL tablosunu kontrol et');
+          return false;
+        }
+      }
+      async function pullFromCloud(forceOverwrite, silent) {
+        if (!isCloudReady() || !navigator.onLine) return false;
+        cloudSyncing = true;
+        updateCloudUI('syncing');
+        try {
+          const q = encodeURIComponent(cloudCfg.syncKey);
+          const res = await fetch(`${cloudCfg.url}/rest/v1/fittakip_sync?sync_key=eq.${q}&select=data,updated_at`, {
+            method: 'GET',
+            headers: sbHeaders()
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const rows = await res.json();
+          cloudSyncing = false;
+          if (!Array.isArray(rows) || !rows.length || !rows[0].data) {
+            // No cloud record yet -> push local state to initialize cloud
+            await pushToCloud(silent);
+            return true;
+          }
+          const remoteData = rows[0].data;
+          const remoteTs = Number(remoteData.lastModified) || Date.parse(rows[0].updated_at) || 0;
+          const localTs = Number(state.lastModified) || 0;
+          if (forceOverwrite || remoteTs > localTs) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(remoteData));
+            loadState();
+            cloudLastSyncAt = Date.now();
+            updateCloudUI('ok');
+            renderAll();
+            if (!silent) showToast('☁️ Buluttan son veriler çekildi!');
+            return true;
+          } else if (localTs > remoteTs) {
+            await pushToCloud(true);
+            return true;
+          } else {
+            cloudLastSyncAt = Date.now();
+            updateCloudUI('ok');
+            if (!silent) showToast('☁️ Veriler zaten güncel');
+            return true;
+          }
+        } catch (e) {
+          cloudSyncing = false;
+          updateCloudUI('error');
+          if (!silent) showToast('Buluttan çekme hatası: Ayarları kontrol et');
+          return false;
+        }
+      }
+      function scheduleCloudPush() {
+        if (!isCloudReady()) return;
+        clearTimeout(cloudPushTimer);
+        cloudPushTimer = setTimeout(() => { pushToCloud(true); }, 1500);
+      }
+      function saveState(skipCloud) {
+        state.lastModified = Date.now();
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {
           showToast('Depolama dolu — eski fotoğrafları silebilirsin.');
         }
+        if (!skipCloud) scheduleCloudPush();
       }
       function saveStateDebounced() {
         clearTimeout(saveDebounceTimer);
@@ -2476,6 +2657,10 @@
         document.getElementById('setProfGoalW').value = state.profile.goalWeight || '';
         document.getElementById('setProfWaterG').value = state.profile.waterGoal || 4000;
         document.getElementById('setProfRestSec').value = String(state.profile.defaultRestSec || 90);
+        document.getElementById('inpSbUrl').value = cloudCfg.url || '';
+        document.getElementById('inpSbKey').value = cloudCfg.key || '';
+        document.getElementById('inpSbSyncKey').value = cloudCfg.syncKey || '';
+        updateCloudUI(cloudSyncing ? 'syncing' : 'ok');
 
         const box = document.getElementById('injuryList');
         if (!state.injuries.length) {
@@ -2605,6 +2790,10 @@
           state.theme = state.theme === 'light' ? 'dark' : 'light';
           saveState(); renderAll();
         });
+        document.getElementById('btnHeaderCloud').addEventListener('click', () => {
+          activeProfSub = 'safety';
+          switchTab('profile');
+        });
         document.getElementById('btnHeaderToday').addEventListener('click', () => {
           calMonthDate = new Date();
           selectDateSafe(todayISO());
@@ -2624,6 +2813,7 @@
           tickRestTimer(true);
           if (state.fastingStart && activeTab === 'tools') updateIfTool();
           if (wakeLockWanted && !wakeLockSentinel) acquireWakeLock(true);
+          if (isCloudReady() && !cloudSyncing) pullFromCloud(false, true);
         };
         document.addEventListener('visibilitychange', () => {
           if (document.visibilityState === 'visible') onAppResume();
@@ -2999,6 +3189,34 @@
           state.profile.defaultRestSec = Number(document.getElementById('setProfRestSec').value) || 90;
           saveState(); renderAll(); showToast('Hedefler kaydedildi!');
         });
+        document.getElementById('btnCloudConnect').addEventListener('click', async () => {
+          const url = document.getElementById('inpSbUrl').value.trim().replace(/\/+$/, '');
+          const key = document.getElementById('inpSbKey').value.trim();
+          const syncKey = document.getElementById('inpSbSyncKey').value.trim();
+          if (!url.startsWith('https://') || !key || syncKey.length < 4) {
+            showToast('Geçerli URL, Anon Key ve en az 4 karakterli Senkron Kodu gir');
+            return;
+          }
+          cloudCfg = { url, key, syncKey };
+          saveCloudCfg();
+          await pullFromCloud(false, false);
+        });
+        document.getElementById('btnCloudPush').addEventListener('click', () => pushToCloud(false));
+        document.getElementById('btnCloudPull').addEventListener('click', () => {
+          if (confirm('Buluttaki son kayıt bu cihazdaki verilerin üzerine yazılsın mı?')) {
+            pullFromCloud(true, false);
+          }
+        });
+        document.getElementById('btnCloudDisconnect').addEventListener('click', () => {
+          if (confirm('Bulut bağlantısı kesilsin mi? Cihazdaki verilerin silinmez.')) {
+            cloudCfg = { url: '', key: '', syncKey: '' };
+            saveCloudCfg();
+            updateCloudUI();
+            renderSafetyAndSettings();
+            showToast('Bulut bağlantısı kesildi');
+          }
+        });
+
         document.getElementById('btnExportJson').addEventListener('click', () => {
           const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
           const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -3029,10 +3247,13 @@
         });
       }
 
+      loadCloudCfg();
       loadState();
       initEvents();
       restoreTimersFromState();
       renderAll();
+      updateCloudUI();
+      if (isCloudReady()) pullFromCloud(false, true);
     })();
   </script>
 </body>
