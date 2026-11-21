@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="FitTakip" />
   <meta name="theme-color" content="#09090B" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2309090B'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%23CCFF00'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='%2309090B'%3EFT%3C/text%3E%3C/svg%3E" />
-  <title>FitTakip v23.1 — Sporcu Antrenman Takibi</title>
+  <title>FitTakip v23.2 — Sporcu Antrenman Takibi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -113,7 +113,7 @@
           <div class="w-8 h-8 rounded-xl bg-[#CCFF00] text-[#09090B] font-black text-xs flex items-center justify-center tracking-tighter shadow-sm">FT</div>
           <div class="flex items-center gap-1.5">
             <h1 class="text-base font-extrabold tracking-tight">FitTakip</h1>
-            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V23.1</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V23.2</span>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -815,7 +815,7 @@
         <button type="button" data-sheet-act="video" class="w-full py-3 text-sm font-semibold text-center">▶ Videoyu İzle / Düzenle</button>
         <button type="button" data-sheet-act="fillPrev" class="w-full py-3 text-sm font-semibold text-center">↺ Son Seansı Doldur</button>
         <button type="button" data-sheet-act="copySet1" class="w-full py-3 text-sm font-semibold text-center">↓ 1. Seti Tüm Setlere Kopyala</button>
-        <button type="button" data-sheet-act="weightMode" class="w-full py-3 text-sm font-semibold text-center">⚖️ Ağırlık Modu (kg / VA / +kg / -kg)</button>
+        <button type="button" data-sheet-act="weightMode" class="w-full py-3 text-sm font-semibold text-center">⚖️ Ağırlık Modu (KG / DB ×2 / VA / +KG / −KG)</button>
         <button type="button" data-sheet-act="note" class="w-full py-3 text-sm font-semibold text-center">📝 Makine / Form Notu</button>
         <button type="button" data-sheet-act="swap" class="w-full py-3 text-sm font-semibold text-center">⇄ Hareket Değiştir (Makine Doluysa)</button>
         <button type="button" data-sheet-act="history" class="w-full py-3 text-sm font-semibold text-center">📊 Son 5 Seans Geçmişi</button>
@@ -875,6 +875,7 @@
       const DAYS_TR = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
       const WEIGHT_MODES = [
         { key: 'kg', label: 'KG', badge: '' },
+        { key: 'db', label: '2×KG', badge: 'Dumbbell (×2)' },
         { key: 'bw', label: 'VA', badge: 'Vücut Ağırlığı' },
         { key: 'plus', label: '+KG', badge: '+Ek Ağırlık' },
         { key: 'minus', label: '−KG', badge: '−Destek' }
@@ -891,7 +892,7 @@
             { group: 'Göğüs', name: 'INCLINE CHEST PRESS MAC', video: 'https://www.youtube.com/watch?v=T5VMsjSpKts' },
             { group: 'Göğüs', name: 'Seated Chest Press Machine', video: 'https://www.youtube.com/watch?v=65npK4ljz1c' },
             { group: 'Göğüs', name: 'Assisted Push Up', weightMode: 'minus', video: 'https://www.youtube.com/watch?v=9Yoqen-3ygE' },
-            { group: 'Omuz', name: 'Dumbbell Lateral Raise', video: 'https://www.youtube.com/watch?v=kGgtmhfCuYQ' },
+            { group: 'Omuz', name: 'Dumbbell Lateral Raise', weightMode: 'db', video: 'https://www.youtube.com/watch?v=kGgtmhfCuYQ' },
             { group: 'Kol', name: 'PUSH DOWN', video: 'https://www.youtube.com/watch?v=gc7NCFb-2is' },
             { group: 'Kol', name: 'Cable Triceps Pushdown', video: 'https://www.youtube.com/watch?v=ppbHcxIt9Ac' }
           ]
@@ -917,13 +918,13 @@
             { group: 'Omuz', name: 'Rotator Cuff and Shoulder Press', video: 'https://www.youtube.com/watch?v=mky_NYCsmTQ' },
             { group: 'Omuz', name: 'COBRA PRESS', video: 'https://www.youtube.com/watch?v=8c6h07Sg18g' },
             { group: 'Göğüs', name: 'SM INCLINE BENCH PRESS', video: 'https://www.youtube.com/watch?v=9eFxNdzQw3w' },
-            { group: 'Göğüs', name: 'DUMBELL BENCH PRESS', video: 'https://www.youtube.com/watch?v=qnkX5y99ziU' },
+            { group: 'Göğüs', name: 'DUMBELL BENCH PRESS', weightMode: 'db', video: 'https://www.youtube.com/watch?v=qnkX5y99ziU' },
             { group: 'Sırt', name: 'Seated Cable Row', video: 'https://www.youtube.com/watch?v=QsRigMd32AA' },
             { group: 'Göğüs', name: 'Push Up', weightMode: 'bw', video: 'https://www.youtube.com/watch?v=8Q8r0WPk9vQ' },
-            { group: 'Omuz', name: 'DUMBELL UPRIGHT ROW', video: 'https://www.youtube.com/watch?v=T0AE9TBXMWE' },
-            { group: 'Omuz', name: 'Dumbbell Lateral Raise', video: 'https://www.youtube.com/watch?v=kGgtmhfCuYQ' },
-            { group: 'Kol', name: 'Dumbbell Biceps Curl', video: 'https://www.youtube.com/watch?v=3tv2W1aD4m0' },
-            { group: 'Kol', name: 'Dumbbell Hammer Curl', video: 'https://www.youtube.com/watch?v=naE7VtMCKLE' }
+            { group: 'Omuz', name: 'DUMBELL UPRIGHT ROW', weightMode: 'db', video: 'https://www.youtube.com/watch?v=T0AE9TBXMWE' },
+            { group: 'Omuz', name: 'Dumbbell Lateral Raise', weightMode: 'db', video: 'https://www.youtube.com/watch?v=kGgtmhfCuYQ' },
+            { group: 'Kol', name: 'Dumbbell Biceps Curl', weightMode: 'db', video: 'https://www.youtube.com/watch?v=3tv2W1aD4m0' },
+            { group: 'Kol', name: 'Dumbbell Hammer Curl', weightMode: 'db', video: 'https://www.youtube.com/watch?v=naE7VtMCKLE' }
           ]
         },
         cumartesi: {
@@ -936,15 +937,15 @@
             { group: 'Sırt', name: 'Seated Cable Row', video: 'https://www.youtube.com/watch?v=QsRigMd32AA' },
             { group: 'Sırt', name: 'RACK PULL', video: 'https://www.youtube.com/watch?v=5w4Iyj9KUog' },
             { group: 'Omuz', name: 'FACE PULL', video: 'https://www.youtube.com/watch?v=MGLyNfulwvE' },
-            { group: 'Kol', name: 'Dumbbell Hammer Curl', video: 'https://www.youtube.com/watch?v=naE7VtMCKLE' },
-            { group: 'Kol', name: 'Incline Dumbell Curl', video: 'https://www.youtube.com/watch?v=RtmR3WVYbf0' }
+            { group: 'Kol', name: 'Dumbbell Hammer Curl', weightMode: 'db', video: 'https://www.youtube.com/watch?v=naE7VtMCKLE' },
+            { group: 'Kol', name: 'Incline Dumbell Curl', weightMode: 'db', video: 'https://www.youtube.com/watch?v=RtmR3WVYbf0' }
           ]
         }
       };
 
       const EXTRA_CATALOG = [
         { group: 'Göğüs', name: 'Bench Press (Barbell)' },
-        { group: 'Göğüs', name: 'Incline Dumbbell Press' },
+        { group: 'Göğüs', name: 'Incline Dumbbell Press', weightMode: 'db' },
         { group: 'Göğüs', name: 'Cable Fly / Pec Deck' },
         { group: 'Göğüs', name: 'Chest Dips', weightMode: 'bw' },
         { group: 'Sırt', name: 'Barbell Row' },
@@ -990,7 +991,9 @@
           weightLogs: [],
           photos: [],
           injuries: [],
-          fastingStart: null
+          fastingStart: null,
+          activeSw: null,   // { date, baseSec, startedAt }
+          activeRest: null  // { endAt, paused, remainingSec }
         };
       }
 
@@ -1004,9 +1007,9 @@
       let selectedCardioInt = 'Orta';
       let programDrawerOpen = false;
 
-      // Timers & WakeLock
-      let restSec = 0, restPaused = false, restInt = null;
-      let swSec = 0, swRunning = false, swInt = null, swDate = null;
+      // Timers & WakeLock (Timestamp-based so switching apps / locking screen NEVER pauses them)
+      let restSec = 0, restPaused = false, restEndAt = null, restInt = null;
+      let swSec = 0, swRunning = false, swStartedAt = null, swBaseSec = 0, swInt = null, swDate = null;
       let wakeLockWanted = false, wakeLockSentinel = null;
       let saveDebounceTimer = null;
       let undoCallback = null;
@@ -1153,6 +1156,7 @@
         const bw = getLatestWeight() || 0;
         const raw = Number(setObj.weight) || 0;
         const mode = ex.weightMode || 'kg';
+        if (mode === 'db') return raw * 2;
         if (mode === 'bw') return bw > 0 ? bw : raw;
         if (mode === 'plus') return bw > 0 ? bw + raw : raw;
         if (mode === 'minus') return bw > 0 ? Math.max(0, bw - raw) : raw;
@@ -1220,26 +1224,78 @@
         } catch (e) {}
       }
 
-      // Floating Rest Timer with Pause/Resume
+      // Floating Rest Timer (Timestamp-based: keeps ticking in background / other apps)
+      function persistActiveRest() {
+        if (!restEndAt && !restPaused) state.activeRest = null;
+        else state.activeRest = { endAt: restEndAt, paused: restPaused, remainingSec: restSec };
+        saveState();
+      }
+      function tickRestTimer(fromResume) {
+        if (restPaused || !restEndAt) return;
+        const left = Math.ceil((restEndAt - Date.now()) / 1000);
+        if (left <= 0) {
+          clearInterval(restInt);
+          restInt = null;
+          restEndAt = null;
+          restSec = 0;
+          state.activeRest = null;
+          saveState();
+          document.getElementById('floatingRestBar').classList.add('hidden');
+          playBeep();
+          showToast(fromResume ? 'Dinlenme süren arka planda doldu! Sete hazırsın.' : 'Dinlenme bitti! Sonraki sete hazırsın.');
+        } else {
+          if (left !== restSec) {
+            restSec = left;
+            updateRestUI();
+          }
+        }
+      }
       function startRestTimer(sec) {
         clearInterval(restInt);
         restSec = sec || Number(state.profile.defaultRestSec) || 90;
         restPaused = false;
-        const bar = document.getElementById('floatingRestBar');
-        bar.classList.remove('hidden');
+        restEndAt = Date.now() + restSec * 1000;
+        persistActiveRest();
+        document.getElementById('floatingRestBar').classList.remove('hidden');
         updateRestUI();
-        restInt = setInterval(() => {
-          if (restPaused) return;
-          restSec--;
-          if (restSec <= 0) {
-            clearInterval(restInt);
-            bar.classList.add('hidden');
-            playBeep();
-            showToast('Dinlenme bitti! Sonraki sete hazırsın.');
-          } else {
-            updateRestUI();
-          }
-        }, 1000);
+        restInt = setInterval(() => tickRestTimer(false), 300);
+      }
+      function toggleRestPause() {
+        if (restPaused) {
+          restPaused = false;
+          restEndAt = Date.now() + Math.max(1, restSec) * 1000;
+          clearInterval(restInt);
+          restInt = setInterval(() => tickRestTimer(false), 300);
+        } else {
+          if (restEndAt) restSec = Math.max(1, Math.ceil((restEndAt - Date.now()) / 1000));
+          restPaused = true;
+          restEndAt = null;
+          clearInterval(restInt);
+          restInt = null;
+        }
+        persistActiveRest();
+        updateRestUI();
+      }
+      function adjustRestSec(delta) {
+        if (restPaused) {
+          restSec = Math.max(5, restSec + delta);
+        } else if (restEndAt) {
+          const cur = Math.max(0, Math.ceil((restEndAt - Date.now()) / 1000));
+          restSec = Math.max(5, cur + delta);
+          restEndAt = Date.now() + restSec * 1000;
+        }
+        persistActiveRest();
+        updateRestUI();
+      }
+      function stopRestTimer() {
+        clearInterval(restInt);
+        restInt = null;
+        restPaused = false;
+        restEndAt = null;
+        restSec = 0;
+        state.activeRest = null;
+        saveState();
+        document.getElementById('floatingRestBar').classList.add('hidden');
       }
       function updateRestUI() {
         const m = Math.floor(restSec / 60), s = restSec % 60;
@@ -1248,14 +1304,25 @@
         document.getElementById('restPulseDot').className = restPaused ? 'w-2 h-2 rounded-full bg-zinc-500' : 'w-2 h-2 rounded-full bg-[#CCFF00] animate-pulse';
       }
 
-      // Workout Stopwatch (strictly bound to swDate)
-      function stopStopwatch() {
-        clearInterval(swInt);
-        swRunning = false;
-        if (swDate) {
-          ensureDayWorkout(swDate).durationSec = swSec;
-          saveState();
+      // Workout Stopwatch (Timestamp-based: survives switching apps, screen lock & Safari reloads)
+      function syncStopwatchNow() {
+        if (!swRunning || !swStartedAt) return;
+        const elapsed = swBaseSec + Math.max(0, Math.floor((Date.now() - swStartedAt) / 1000));
+        if (elapsed !== swSec) {
+          swSec = elapsed;
+          if (swDate) ensureDayWorkout(swDate).durationSec = swSec;
+          updateStopwatchUI();
         }
+      }
+      function stopStopwatch() {
+        syncStopwatchNow();
+        clearInterval(swInt);
+        swInt = null;
+        swRunning = false;
+        swStartedAt = null;
+        state.activeSw = null;
+        if (swDate) ensureDayWorkout(swDate).durationSec = swSec;
+        saveState();
         swDate = null;
         updateStopwatchUI();
       }
@@ -1264,14 +1331,51 @@
           stopStopwatch();
         } else {
           swDate = selectedDate;
-          swSec = ensureDayWorkout(swDate).durationSec || swSec || 0;
+          swBaseSec = ensureDayWorkout(swDate).durationSec || 0;
+          swSec = swBaseSec;
+          swStartedAt = Date.now();
           swRunning = true;
-          swInt = setInterval(() => {
-            swSec++;
-            if (swDate) ensureDayWorkout(swDate).durationSec = swSec;
-            updateStopwatchUI();
-          }, 1000);
+          state.activeSw = { date: swDate, baseSec: swBaseSec, startedAt: swStartedAt };
+          saveState();
+          clearInterval(swInt);
+          swInt = setInterval(syncStopwatchNow, 500);
           updateStopwatchUI();
+        }
+      }
+      function restoreTimersFromState() {
+        if (state.activeSw && state.activeSw.startedAt && state.activeSw.date === selectedDate) {
+          swDate = state.activeSw.date;
+          swBaseSec = Number(state.activeSw.baseSec) || 0;
+          swStartedAt = Number(state.activeSw.startedAt);
+          swRunning = true;
+          syncStopwatchNow();
+          clearInterval(swInt);
+          swInt = setInterval(syncStopwatchNow, 500);
+        }
+        if (state.activeRest) {
+          if (state.activeRest.paused) {
+            restPaused = true;
+            restSec = Number(state.activeRest.remainingSec) || 0;
+            restEndAt = null;
+            if (restSec > 0) {
+              document.getElementById('floatingRestBar').classList.remove('hidden');
+              updateRestUI();
+            }
+          } else if (state.activeRest.endAt) {
+            restEndAt = Number(state.activeRest.endAt);
+            restPaused = false;
+            const left = Math.ceil((restEndAt - Date.now()) / 1000);
+            if (left > 0) {
+              restSec = left;
+              document.getElementById('floatingRestBar').classList.remove('hidden');
+              updateRestUI();
+              clearInterval(restInt);
+              restInt = setInterval(() => tickRestTimer(false), 300);
+            } else {
+              state.activeRest = null;
+              saveState();
+            }
+          }
         }
       }
       function updateStopwatchUI() {
@@ -1601,9 +1705,9 @@
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md surface-elev text-zinc-500 dark:text-zinc-300">${esc(ex.group)}</span>
-                  ${wm.badge ? `<button type="button" data-cycle-wmode="${exIdx}" class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-400">${wm.badge}</button>` : ''}
+                  ${wm.badge ? `<button type="button" data-cycle-wmode="${exIdx}" class="text-[10px] font-extrabold px-2 py-0.5 rounded-md ${ex.weightMode === 'db' ? 'bg-amber-500/15 text-amber-400' : 'bg-sky-500/15 text-sky-400'}">${wm.badge}</button>` : ''}
                   ${isLinked ? '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#CCFF00]/15 text-zinc-800 dark:text-[#CCFF00]">Süperset</span>' : ''}
-                  ${prev ? `<span class="text-[10px] font-bold text-zinc-400 tabular">Önceki: ${prev.sets[0]?.weight || (ex.weightMode==='bw'?'VA':0)}×${prev.sets[0]?.reps || 0}</span>` : ''}
+                  ${prev ? `<span class="text-[10px] font-bold text-zinc-400 tabular">Önceki: ${ex.weightMode==='db' ? '2×' : ''}${prev.sets[0]?.weight || (ex.weightMode==='bw'?'VA':0)}×${prev.sets[0]?.reps || 0}</span>` : ''}
                 </div>
                 <h4 class="text-base font-extrabold tracking-tight mt-1 leading-snug">${esc(ex.name)}</h4>
                 ${note ? `<p class="text-[11px] text-zinc-400 mt-0.5">📝 ${esc(note)}</p>` : ''}
@@ -1618,7 +1722,7 @@
             <!-- Column Headers -->
             <div class="grid grid-cols-12 gap-1.5 text-[10px] font-bold uppercase text-zinc-400 text-center px-1">
               <span class="col-span-2">Set</span>
-              <span class="col-span-3">${wm.label}</span>
+              <button type="button" data-cycle-wmode="${exIdx}" title="Ağırlık modunu değiştir" class="col-span-3 text-[10px] font-extrabold uppercase text-zinc-400 hover:text-[#CCFF00] underline decoration-dotted underline-offset-2">${wm.label}</button>
               <span class="col-span-3">Tekrar</span>
               <span class="col-span-2">RIR</span>
               <span class="col-span-2">Onay</span>
@@ -2315,12 +2419,18 @@
           }
         });
 
-        // Visibility WakeLock re-acquire + IF live tick
+        // Visibility / Focus: re-sync timers immediately when returning from another app + WakeLock
+        const onAppResume = () => {
+          syncStopwatchNow();
+          tickRestTimer(true);
+          if (state.fastingStart && activeTab === 'tools') updateIfTool();
+          if (wakeLockWanted && !wakeLockSentinel) acquireWakeLock(true);
+        };
         document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible' && wakeLockWanted && !wakeLockSentinel) {
-            acquireWakeLock(true);
-          }
+          if (document.visibilityState === 'visible') onAppResume();
         });
+        window.addEventListener('focus', onAppResume);
+        window.addEventListener('pageshow', onAppResume);
         setInterval(() => {
           if (state.fastingStart && activeTab === 'tools') updateIfTool();
         }, 30000);
@@ -2461,13 +2571,10 @@
         document.getElementById('btnCloseSummary').addEventListener('click', () => closeModal('summaryModal'));
 
         // Rest Timer Controls
-        document.getElementById('btnRestPause').addEventListener('click', () => { restPaused = !restPaused; updateRestUI(); });
-        document.getElementById('btnRestMinus').addEventListener('click', () => { restSec = Math.max(5, restSec - 15); updateRestUI(); });
-        document.getElementById('btnRestPlus').addEventListener('click', () => { restSec += 15; updateRestUI(); });
-        document.getElementById('btnRestSkip').addEventListener('click', () => {
-          clearInterval(restInt); restPaused = false;
-          document.getElementById('floatingRestBar').classList.add('hidden');
-        });
+        document.getElementById('btnRestPause').addEventListener('click', toggleRestPause);
+        document.getElementById('btnRestMinus').addEventListener('click', () => adjustRestSec(-15));
+        document.getElementById('btnRestPlus').addEventListener('click', () => adjustRestSec(15));
+        document.getElementById('btnRestSkip').addEventListener('click', stopRestTimer);
 
         // Cardio Controls
         document.querySelectorAll('.ctype-btn').forEach(b => b.addEventListener('click', e => { selectedCardioType = e.currentTarget.dataset.ctype; estimateCardioKcal(); renderCardio(); }));
@@ -2684,6 +2791,7 @@
 
       loadState();
       initEvents();
+      restoreTimersFromState();
       renderAll();
     })();
   </script>
