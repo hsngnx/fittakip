@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="FitTakip" />
   <meta name="theme-color" content="#09090B" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2309090B'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%23CCFF00'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='%2309090B'%3EFT%3C/text%3E%3C/svg%3E" />
-  <title>FitTakip v23 — Sporcu Antrenman Takibi</title>
+  <title>FitTakip v23.1 — Sporcu Antrenman Takibi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -65,6 +65,7 @@
       overscroll-behavior-y: none;
       width: 100%; max-width: 100%; overflow-x: hidden;
     }
+    body.modal-open { overflow: hidden; touch-action: none; }
     .tabular { font-variant-numeric: tabular-nums; }
     .surface-card {
       background-color: var(--card);
@@ -80,18 +81,27 @@
     }
     .safe-top { padding-top: max(0.75rem, env(safe-area-inset-top)); }
     .safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+    .rest-pill-pos { bottom: calc(4.75rem + env(safe-area-inset-bottom)); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    button { user-select: none; -webkit-user-select: none; transition: transform 0.1s ease, opacity 0.15s ease, background-color 0.15s ease; }
+    button {
+      user-select: none; -webkit-user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.09s ease, opacity 0.14s ease, background-color 0.14s ease;
+    }
     button:active { transform: scale(0.96); }
     input, select, textarea { font-size: 16px !important; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input::placeholder { color: var(--muted); opacity: 0.45; }
     .tab-btn.active { color: var(--accent); }
     html:not(.dark) .tab-btn.active { color: #111114; }
-    .fade-in { animation: fadeIn 0.16s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.15s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     .superset-border { border-left: 3px solid #CCFF00 !important; }
     html:not(.dark) .superset-border { border-left: 3px solid #65A30D !important; }
+    .set-row-done { background-color: rgba(204, 255, 0, 0.11); }
+    html:not(.dark) .set-row-done { background-color: rgba(101, 163, 13, 0.12); }
   </style>
 </head>
 <body class="min-h-screen">
@@ -103,7 +113,7 @@
           <div class="w-8 h-8 rounded-xl bg-[#CCFF00] text-[#09090B] font-black text-xs flex items-center justify-center tracking-tighter shadow-sm">FT</div>
           <div class="flex items-center gap-1.5">
             <h1 class="text-base font-extrabold tracking-tight">FitTakip</h1>
-            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V23</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-[#CCFF00]/15 text-zinc-700 dark:text-[#CCFF00]">V23.1</span>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -117,14 +127,17 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 px-4 pt-4 pb-32 space-y-4">
+    <main class="flex-1 px-4 pt-4 pb-36 space-y-4">
 
       <!-- ==================== 1. BUGÜN (TODAY) ==================== -->
       <section id="view-today" class="space-y-4 fade-in">
         <!-- Compact Expandable Calendar -->
         <div class="surface-card rounded-3xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <span id="calHeaderLabel" class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Haftalık Takvim</span>
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span id="calHeaderLabel" class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Haftalık Takvim</span>
+              <span id="weekWorkoutCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-black/5 dark:bg-[#CCFF00]/15 text-zinc-600 dark:text-[#CCFF00] tabular">0 gün</span>
+            </div>
             <button id="btnToggleMonthCal" type="button" class="text-xs font-bold text-zinc-700 dark:text-[#CCFF00] flex items-center gap-1">
               <span id="calToggleText">Aylık Takvim</span> ▾
             </button>
@@ -134,9 +147,9 @@
           <!-- Expandable Monthly Calendar -->
           <div id="monthCalWrap" class="hidden space-y-2.5 pt-2 border-t border-black/5 dark:border-white/5">
             <div class="flex items-center justify-between">
-              <button id="btnCalPrevMonth" type="button" class="w-7 h-7 rounded-lg surface-elev text-sm font-bold">‹</button>
+              <button id="btnCalPrevMonth" type="button" class="w-8 h-8 rounded-xl surface-elev text-sm font-bold">‹</button>
               <span id="calMonthTitle" class="text-xs font-extrabold"></span>
-              <button id="btnCalNextMonth" type="button" class="w-7 h-7 rounded-lg surface-elev text-sm font-bold">›</button>
+              <button id="btnCalNextMonth" type="button" class="w-8 h-8 rounded-xl surface-elev text-sm font-bold">›</button>
             </div>
             <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-zinc-400">
               <span>PZT</span><span>SAL</span><span>ÇAR</span><span>PER</span><span>CUM</span><span>CMT</span><span>PAZ</span>
@@ -182,8 +195,8 @@
               <p class="text-base font-black tabular leading-tight"><span id="homeWaterVal">0.0</span><span class="text-[11px] font-semibold text-zinc-400">/<span id="homeWaterGoal">4.0</span>L</span></p>
             </div>
             <div class="grid grid-cols-2 gap-1">
-              <button type="button" data-quick-water="250" class="py-1 rounded-lg bg-sky-500/15 text-sky-500 dark:text-sky-400 text-[10px] font-extrabold">+250</button>
-              <button type="button" data-quick-water="500" class="py-1 rounded-lg bg-sky-500/15 text-sky-500 dark:text-sky-400 text-[10px] font-extrabold">+500</button>
+              <button type="button" data-quick-water="250" class="py-1.5 rounded-lg bg-sky-500/15 text-sky-500 dark:text-sky-400 text-[10px] font-extrabold">+250</button>
+              <button type="button" data-quick-water="500" class="py-1.5 rounded-lg bg-sky-500/15 text-sky-500 dark:text-sky-400 text-[10px] font-extrabold">+500</button>
             </div>
           </div>
           <!-- Cardio -->
@@ -223,10 +236,10 @@
               </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-              <button id="btnHomeWeightMinus" type="button" class="w-8 h-8 rounded-xl surface-elev font-extrabold text-sm">−</button>
-              <input id="homeWeightInput" type="number" step="0.1" min="30" max="250" placeholder="kg" class="w-16 text-center rounded-xl surface-elev py-1.5 text-sm font-black tabular focus:outline-none" />
-              <button id="btnHomeWeightPlus" type="button" class="w-8 h-8 rounded-xl surface-elev font-extrabold text-sm">+</button>
-              <button id="btnHomeWeightSave" type="button" class="px-3 h-8 rounded-xl btn-volt text-xs font-extrabold">✓</button>
+              <button id="btnHomeWeightMinus" type="button" aria-label="0.1 kg azalt" class="w-8 h-8 rounded-xl surface-elev font-extrabold text-sm">−</button>
+              <input id="homeWeightInput" type="number" inputmode="decimal" step="0.1" min="30" max="250" placeholder="kg" class="w-16 text-center rounded-xl surface-elev py-1.5 text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00]" />
+              <button id="btnHomeWeightPlus" type="button" aria-label="0.1 kg artır" class="w-8 h-8 rounded-xl surface-elev font-extrabold text-sm">+</button>
+              <button id="btnHomeWeightSave" type="button" aria-label="Kiloyu kaydet" class="px-3 h-8 rounded-xl btn-volt text-xs font-extrabold">✓</button>
             </div>
           </div>
           <button id="btnHomeOpenBmi" type="button" class="w-full pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-left">
@@ -255,16 +268,17 @@
               <input id="wkTitleInput" type="text" placeholder="Antrenman adı..." class="flex-1 min-w-0 bg-transparent text-lg font-black tracking-tight focus:outline-none" />
               <button id="btnFinishWorkout" type="button" class="px-3.5 py-2 rounded-xl btn-volt text-xs font-extrabold shrink-0">Bitir</button>
             </div>
-            <div class="flex items-center justify-between gap-2 text-xs pt-2 border-t border-black/5 dark:border-white/5">
-              <div class="flex items-center gap-2">
+            <div class="flex items-center justify-between gap-1.5 text-xs pt-2 border-t border-black/5 dark:border-white/5 flex-wrap">
+              <div class="flex items-center gap-1.5">
                 <button id="btnStopwatchToggle" type="button" class="px-2.5 py-1.5 rounded-xl surface-elev font-mono font-bold text-xs flex items-center gap-1.5 tabular">
                   <span id="stopwatchDot" class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
                   <span id="stopwatchDisplay">00:00</span>
                 </button>
-                <button id="btnWakeLock" type="button" class="px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-bold text-zinc-500 dark:text-zinc-300">Ekran Açık</button>
+                <button id="btnManualRest" type="button" title="Dinlenme Sayacı Başlat" class="px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-bold text-zinc-500 dark:text-zinc-300">⏱ Mola</button>
+                <button id="btnWakeLock" type="button" class="px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-bold text-zinc-500 dark:text-zinc-300">Ekran</button>
               </div>
               <div class="flex items-center gap-1.5">
-                <button id="btnToggleProgramDrawer" type="button" class="px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-bold text-zinc-500 dark:text-zinc-300">Programlar ▾</button>
+                <button id="btnToggleProgramDrawer" type="button" class="px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-bold text-zinc-500 dark:text-zinc-300">Program ▾</button>
                 <button id="btnOpenAddExModal" type="button" class="px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-extrabold text-zinc-900 dark:text-[#CCFF00]">+ Hareket</button>
               </div>
             </div>
@@ -276,9 +290,12 @@
 
           <!-- Collapsible Program & Template Selector -->
           <div id="programDrawer" class="surface-card rounded-3xl p-4 space-y-3">
-            <div class="flex items-center justify-between">
-              <p class="text-xs font-extrabold uppercase tracking-wider text-zinc-400">4 Günlük Sabit Programım (Videolu)</p>
-              <button id="btnWkOffDay" type="button" class="text-[11px] font-bold px-2.5 py-1 rounded-lg surface-elev text-zinc-500 dark:text-zinc-300">Off Day</button>
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-xs font-extrabold uppercase tracking-wider text-zinc-400">4 Günlük Sabit Programım</p>
+              <div class="flex items-center gap-1.5">
+                <button id="btnNewBlankWorkout" type="button" class="text-[11px] font-bold px-2.5 py-1 rounded-lg surface-elev text-zinc-600 dark:text-zinc-200">+ Boş Plan</button>
+                <button id="btnWkOffDay" type="button" class="text-[11px] font-bold px-2.5 py-1 rounded-lg surface-elev text-zinc-500 dark:text-zinc-300">Off Day</button>
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
               <button type="button" data-load-prog="pazartesi" class="p-3 rounded-2xl surface-elev text-left hover:border-[#CCFF00]/50 transition">
@@ -332,10 +349,10 @@
             <div class="space-y-2">
               <p class="text-[11px] font-bold text-zinc-400">Hızlı Süre</p>
               <div class="grid grid-cols-4 gap-1.5">
-                <button type="button" data-cmin="15" class="py-2 rounded-xl surface-elev text-xs font-extrabold">15 dk</button>
-                <button type="button" data-cmin="20" class="py-2 rounded-xl surface-elev text-xs font-extrabold">20 dk</button>
-                <button type="button" data-cmin="30" class="py-2 rounded-xl surface-elev text-xs font-extrabold">30 dk</button>
-                <button type="button" data-cmin="45" class="py-2 rounded-xl surface-elev text-xs font-extrabold">45 dk</button>
+                <button type="button" data-cmin="15" class="cmin-btn py-2 rounded-xl surface-elev text-xs font-extrabold">15 dk</button>
+                <button type="button" data-cmin="20" class="cmin-btn py-2 rounded-xl surface-elev text-xs font-extrabold">20 dk</button>
+                <button type="button" data-cmin="30" class="cmin-btn py-2 rounded-xl surface-elev text-xs font-extrabold">30 dk</button>
+                <button type="button" data-cmin="45" class="cmin-btn py-2 rounded-xl surface-elev text-xs font-extrabold">45 dk</button>
               </div>
             </div>
             <div class="space-y-2">
@@ -350,15 +367,15 @@
             <div class="grid grid-cols-3 gap-2">
               <div>
                 <label class="block text-[10px] font-bold text-zinc-400 mb-1">Süre (dk)</label>
-                <input id="cardioMinInput" type="number" min="1" placeholder="20" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-bold text-center tabular" />
+                <input id="cardioMinInput" type="number" inputmode="numeric" min="1" placeholder="20" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-bold text-center tabular" />
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-zinc-400 mb-1">Eğim % (Ops.)</label>
-                <input id="cardioIncInput" type="number" step="0.5" min="0" placeholder="12" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-bold text-center tabular" />
+                <input id="cardioIncInput" type="number" inputmode="decimal" step="0.5" min="0" placeholder="12" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-bold text-center tabular" />
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-zinc-400 mb-1">Tahmini kcal</label>
-                <input id="cardioKcalInput" type="number" min="0" placeholder="0" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold text-center text-orange-500 tabular" />
+                <input id="cardioKcalInput" type="number" inputmode="numeric" min="0" placeholder="0" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold text-center text-orange-500 tabular" />
               </div>
             </div>
             <button id="btnAddCardio" type="button" class="w-full py-3 rounded-2xl btn-volt text-sm font-extrabold">+ Kardiyoyu Kaydet</button>
@@ -452,11 +469,11 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-zinc-400 mb-1">Boy (cm)</label>
-              <input id="toolBmiHeight" type="number" min="120" max="230" placeholder="178" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
+              <input id="toolBmiHeight" type="number" inputmode="numeric" min="120" max="230" placeholder="178" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
             </div>
             <div>
               <label class="block text-[10px] font-bold text-zinc-400 mb-1">Kilo (kg)</label>
-              <input id="toolBmiWeight" type="number" step="0.1" min="35" max="250" placeholder="78" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
+              <input id="toolBmiWeight" type="number" inputmode="decimal" step="0.1" min="35" max="250" placeholder="78" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
             </div>
           </div>
           <div class="space-y-1.5">
@@ -476,7 +493,7 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-zinc-400 mb-1">Hedef Ağırlık (kg)</label>
-              <input id="plateTargetInput" type="number" step="2.5" min="0" value="80" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
+              <input id="plateTargetInput" type="number" inputmode="decimal" step="2.5" min="0" value="80" class="w-full rounded-xl surface-elev px-3 py-2 text-sm font-extrabold tabular" />
             </div>
             <div>
               <label class="block text-[10px] font-bold text-zinc-400 mb-1">Bar</label>
@@ -520,7 +537,7 @@
               <option value="0.42">Makarna</option>
               <option value="0.38">Bulgur Pilavı</option>
             </select>
-            <input id="convGramInput" type="number" min="1" value="150" class="rounded-xl surface-elev px-3 py-2 text-sm font-extrabold text-center tabular" />
+            <input id="convGramInput" type="number" inputmode="numeric" min="1" value="150" class="rounded-xl surface-elev px-3 py-2 text-sm font-extrabold text-center tabular" />
           </div>
           <p id="convResultLabel" class="text-sm font-extrabold text-zinc-900 dark:text-[#CCFF00] tabular">≈ 200 g çiğ ağırlık</p>
         </div>
@@ -547,15 +564,15 @@
             </div>
             <div class="relative h-48"><canvas id="weightTrendChart"></canvas></div>
             <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-black/5 dark:border-white/5">
-              <input id="profWeightInput" type="number" step="0.1" placeholder="Kilo kg" class="col-span-2 rounded-xl surface-elev px-3 py-2 text-xs font-extrabold tabular" />
-              <input id="profWaistInput" type="number" step="0.5" placeholder="Bel cm" class="rounded-xl surface-elev px-2 py-2 text-xs tabular" />
+              <input id="profWeightInput" type="number" inputmode="decimal" step="0.1" placeholder="Kilo kg" class="col-span-2 rounded-xl surface-elev px-3 py-2 text-xs font-extrabold tabular" />
+              <input id="profWaistInput" type="number" inputmode="decimal" step="0.5" placeholder="Bel cm" class="rounded-xl surface-elev px-2 py-2 text-xs tabular" />
               <button id="btnProfSaveWeight" type="button" class="rounded-xl btn-volt text-xs font-extrabold">Kaydet</button>
             </div>
             <details class="text-xs">
               <summary class="text-[11px] font-bold text-zinc-400 cursor-pointer">İsteğe bağlı göğüs / kol ölçüsü &amp; geçmiş</summary>
               <div class="grid grid-cols-2 gap-1.5 mt-2">
-                <input id="profChestInput" type="number" step="0.5" placeholder="Göğüs (cm)" class="rounded-xl surface-elev px-3 py-1.5 text-xs tabular" />
-                <input id="profArmInput" type="number" step="0.5" placeholder="Kol (cm)" class="rounded-xl surface-elev px-3 py-1.5 text-xs tabular" />
+                <input id="profChestInput" type="number" inputmode="decimal" step="0.5" placeholder="Göğüs (cm)" class="rounded-xl surface-elev px-3 py-1.5 text-xs tabular" />
+                <input id="profArmInput" type="number" inputmode="decimal" step="0.5" placeholder="Kol (cm)" class="rounded-xl surface-elev px-3 py-1.5 text-xs tabular" />
               </div>
               <div id="weightLogHistory" class="mt-2.5 space-y-1.5 max-h-36 overflow-y-auto"></div>
             </details>
@@ -648,9 +665,9 @@
           <div class="surface-card rounded-3xl p-4 space-y-3">
             <h3 class="text-sm font-extrabold">Temel Hedefler &amp; Dinlenme</h3>
             <div class="grid grid-cols-2 gap-2">
-              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Boy (cm)</label><input id="setProfHeight" type="number" placeholder="178" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
-              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Hedef Kilo (kg)</label><input id="setProfGoalW" type="number" step="0.1" placeholder="75" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
-              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Günlük Su (ml)</label><input id="setProfWaterG" type="number" step="250" placeholder="4000" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
+              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Boy (cm)</label><input id="setProfHeight" type="number" inputmode="numeric" placeholder="178" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
+              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Hedef Kilo (kg)</label><input id="setProfGoalW" type="number" inputmode="decimal" step="0.1" placeholder="75" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
+              <div><label class="block text-[10px] font-bold text-zinc-400 mb-1">Günlük Su (ml)</label><input id="setProfWaterG" type="number" inputmode="numeric" step="250" placeholder="4000" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular" /></div>
               <div>
                 <label class="block text-[10px] font-bold text-zinc-400 mb-1">Varsayılan Dinlenme</label>
                 <select id="setProfRestSec" class="w-full rounded-xl surface-elev px-2.5 py-2 text-xs font-bold tabular">
@@ -682,15 +699,16 @@
     </main>
 
     <!-- FLOATING REST TIMER PILL -->
-    <div id="floatingRestBar" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-sm rounded-2xl bg-[#18181B] dark:bg-[#1C1C22] text-white border border-white/15 shadow-2xl px-3.5 py-2.5 flex items-center justify-between gap-2">
+    <div id="floatingRestBar" class="hidden fixed rest-pill-pos left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-sm rounded-2xl bg-[#18181B] dark:bg-[#1C1C22] text-white border border-white/15 shadow-2xl px-3.5 py-2.5 flex items-center justify-between gap-2">
       <div class="flex items-center gap-2.5">
-        <span class="w-2 h-2 rounded-full bg-[#CCFF00] animate-pulse"></span>
+        <span id="restPulseDot" class="w-2 h-2 rounded-full bg-[#CCFF00] animate-pulse"></span>
         <div>
           <p class="text-[10px] font-bold text-zinc-400 uppercase leading-none">Dinlenme</p>
           <p id="restClockText" class="text-base font-black font-mono text-[#CCFF00] tabular leading-tight">01:30</p>
         </div>
       </div>
       <div class="flex items-center gap-1.5">
+        <button id="btnRestPause" type="button" aria-label="Duraklat" class="w-8 h-8 rounded-lg bg-white/10 text-xs font-bold flex items-center justify-center">⏸</button>
         <button id="btnRestMinus" type="button" class="px-2 py-1.5 rounded-lg bg-white/10 text-[11px] font-bold">-15s</button>
         <button id="btnRestPlus" type="button" class="px-2 py-1.5 rounded-lg bg-white/10 text-[11px] font-bold">+15s</button>
         <button id="btnRestSkip" type="button" class="px-2.5 py-1.5 rounded-lg bg-[#CCFF00] text-[#09090B] text-[11px] font-extrabold">Atla</button>
@@ -841,8 +859,11 @@
     </div>
   </div>
 
-  <!-- TOAST -->
-  <div id="toastEl" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-[#18181B] dark:bg-[#CCFF00] text-white dark:text-[#09090B] text-xs font-extrabold shadow-xl max-w-[90vw] text-center"></div>
+  <!-- TOAST WITH OPTIONAL UNDO -->
+  <div id="toastEl" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-[#18181B] dark:bg-[#CCFF00] text-white dark:text-[#09090B] text-xs font-extrabold shadow-xl max-w-[92vw] flex items-center gap-3">
+    <span id="toastText"></span>
+    <button id="btnToastUndo" type="button" class="hidden px-2.5 py-1 rounded-lg bg-white/20 dark:bg-black/15 text-[11px] font-black underline shrink-0">Geri Al</button>
+  </div>
 
   <script>
     (function () {
@@ -983,11 +1004,14 @@
       let selectedCardioInt = 'Orta';
       let programDrawerOpen = false;
 
-      let restSec = 0, restInt = null;
-      let swSec = 0, swRunning = false, swInt = null;
-      let wakeLockSentinel = null;
-      let sessionPRCount = 0;
+      // Timers & WakeLock
+      let restSec = 0, restPaused = false, restInt = null;
+      let swSec = 0, swRunning = false, swInt = null, swDate = null;
+      let wakeLockWanted = false, wakeLockSentinel = null;
+      let saveDebounceTimer = null;
+      let undoCallback = null;
 
+      // Modal targets
       let activeVideoEx = null;
       let activeSheetExIdx = null;
       let pickerMode = 'add';
@@ -1035,13 +1059,43 @@
           showToast('Depolama dolu — eski fotoğrafları silebilirsin.');
         }
       }
-      function showToast(msg) {
+      function saveStateDebounced() {
+        clearTimeout(saveDebounceTimer);
+        saveDebounceTimer = setTimeout(saveState, 220);
+      }
+
+      function showToast(msg, onUndo) {
         const el = document.getElementById('toastEl');
-        el.textContent = msg;
+        const txt = document.getElementById('toastText');
+        const uBtn = document.getElementById('btnToastUndo');
+        txt.textContent = msg;
+        undoCallback = typeof onUndo === 'function' ? onUndo : null;
+        uBtn.classList.toggle('hidden', !undoCallback);
         el.classList.remove('hidden');
         clearTimeout(el._t);
-        el._t = setTimeout(() => el.classList.add('hidden'), 2400);
+        el._t = setTimeout(() => {
+          el.classList.add('hidden');
+          undoCallback = null;
+        }, undoCallback ? 4200 : 2400);
       }
+
+      function openModal(id) {
+        const m = document.getElementById(id);
+        if (!m) return;
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+        document.body.classList.add('modal-open');
+      }
+      function closeModal(id) {
+        const m = document.getElementById(id);
+        if (!m) return;
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+        const anyOpen = ['videoModal','exPickerModal','exActionSheet','exHistoryModal','summaryModal']
+          .some(mid => !document.getElementById(mid).classList.contains('hidden'));
+        if (!anyOpen) document.body.classList.remove('modal-open');
+      }
+
       function applyTheme() {
         document.documentElement.classList.toggle('dark', state.theme !== 'light');
         const meta = document.querySelector('meta[name="theme-color"]');
@@ -1105,13 +1159,16 @@
         return raw;
       }
       function getWorkoutStats(w) {
-        let total = 0, done = 0, vol = 0;
+        let total = 0, done = 0, vol = 0, prs = 0;
         (w.exercises || []).forEach(ex => (ex.sets || []).forEach(s => {
           total++;
-          if (s.done) done++;
+          if (s.done) {
+            done++;
+            if (s.isPR) prs++;
+          }
           if (s.type !== 'I') vol += getEffectiveLoad(ex, s) * (Number(s.reps) || 0);
         }));
-        return { total, done, vol: Math.round(vol) };
+        return { total, done, vol: Math.round(vol), prs };
       }
       function getPrevSession(exName, beforeDate) {
         const dates = Object.keys(state.workouts).filter(d => d < beforeDate).sort((a, b) => b.localeCompare(a));
@@ -1142,6 +1199,14 @@
         return { maxW, max1RM, bestRepAtWeight };
       }
 
+      // Safe Date Switch (pauses stopwatch so time never leaks into another date!)
+      function selectDateSafe(iso) {
+        if (iso === selectedDate) return;
+        if (swRunning) stopStopwatch();
+        selectedDate = iso;
+        renderAll();
+      }
+
       function playBeep() {
         try { if (navigator.vibrate) navigator.vibrate([120, 80, 120]); } catch (e) {}
         try {
@@ -1155,13 +1220,16 @@
         } catch (e) {}
       }
 
+      // Floating Rest Timer with Pause/Resume
       function startRestTimer(sec) {
         clearInterval(restInt);
         restSec = sec || Number(state.profile.defaultRestSec) || 90;
+        restPaused = false;
         const bar = document.getElementById('floatingRestBar');
         bar.classList.remove('hidden');
-        updateRestClock();
+        updateRestUI();
         restInt = setInterval(() => {
+          if (restPaused) return;
           restSec--;
           if (restSec <= 0) {
             clearInterval(restInt);
@@ -1169,55 +1237,137 @@
             playBeep();
             showToast('Dinlenme bitti! Sonraki sete hazırsın.');
           } else {
-            updateRestClock();
+            updateRestUI();
           }
         }, 1000);
       }
-      function updateRestClock() {
+      function updateRestUI() {
         const m = Math.floor(restSec / 60), s = restSec % 60;
         document.getElementById('restClockText').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        document.getElementById('btnRestPause').textContent = restPaused ? '▶' : '⏸';
+        document.getElementById('restPulseDot').className = restPaused ? 'w-2 h-2 rounded-full bg-zinc-500' : 'w-2 h-2 rounded-full bg-[#CCFF00] animate-pulse';
       }
 
+      // Workout Stopwatch (strictly bound to swDate)
+      function stopStopwatch() {
+        clearInterval(swInt);
+        swRunning = false;
+        if (swDate) {
+          ensureDayWorkout(swDate).durationSec = swSec;
+          saveState();
+        }
+        swDate = null;
+        updateStopwatchUI();
+      }
       function toggleStopwatch() {
         if (swRunning) {
-          clearInterval(swInt); swRunning = false;
+          stopStopwatch();
         } else {
+          swDate = selectedDate;
+          swSec = ensureDayWorkout(swDate).durationSec || swSec || 0;
           swRunning = true;
           swInt = setInterval(() => {
             swSec++;
-            ensureDayWorkout(selectedDate).durationSec = swSec;
+            if (swDate) ensureDayWorkout(swDate).durationSec = swSec;
             updateStopwatchUI();
           }, 1000);
+          updateStopwatchUI();
         }
-        updateStopwatchUI();
       }
       function updateStopwatchUI() {
         const m = Math.floor(swSec / 60), s = swSec % 60;
         document.getElementById('stopwatchDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        const dot = document.getElementById('stopwatchDot');
-        dot.className = swRunning ? 'w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse' : 'w-1.5 h-1.5 rounded-full bg-zinc-400';
+        document.getElementById('stopwatchDot').className = swRunning ? 'w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse' : 'w-1.5 h-1.5 rounded-full bg-zinc-400';
       }
 
-      async function toggleWakeLock() {
+      // Wake Lock with Visibility Re-Acquisition
+      async function acquireWakeLock(silent) {
+        if (!('wakeLock' in navigator)) {
+          if (!silent) showToast('Bu cihazda Wake Lock desteklenmiyor');
+          return false;
+        }
+        try {
+          wakeLockSentinel = await navigator.wakeLock.request('screen');
+          wakeLockSentinel.addEventListener('release', () => {
+            wakeLockSentinel = null;
+            updateWakeLockBtn();
+          });
+          updateWakeLockBtn();
+          return true;
+        } catch (e) {
+          if (!silent) showToast('Ekran kilidi aktif edilemedi');
+          return false;
+        }
+      }
+      function updateWakeLockBtn() {
         const btn = document.getElementById('btnWakeLock');
         if (wakeLockSentinel) {
-          try { await wakeLockSentinel.release(); } catch (e) {}
-          wakeLockSentinel = null;
-          btn.textContent = 'Ekran Açık';
-          btn.className = 'px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-bold text-zinc-500 dark:text-zinc-300';
-          showToast('Ekran kilidi normale döndü');
-          return;
-        }
-        if ('wakeLock' in navigator) {
-          try {
-            wakeLockSentinel = await navigator.wakeLock.request('screen');
-            btn.textContent = 'Ekran Açık ✓';
-            btn.className = 'px-2.5 py-1.5 rounded-xl bg-[#CCFF00] text-[#09090B] text-[11px] font-extrabold';
-            showToast('Antrenman boyunca ekran açık kalacak');
-          } catch (e) { showToast('Tarayıcı ekran kilidini desteklemiyor'); }
+          btn.textContent = 'Ekran ✓';
+          btn.className = 'px-2.5 py-1.5 rounded-xl bg-[#CCFF00] text-[#09090B] text-[11px] font-extrabold';
         } else {
-          showToast('Bu cihazda Wake Lock desteklenmiyor');
+          btn.textContent = 'Ekran';
+          btn.className = 'px-2.5 py-1.5 rounded-xl surface-elev text-[11px] font-bold text-zinc-500 dark:text-zinc-300';
         }
+      }
+      async function toggleWakeLock() {
+        if (wakeLockWanted) {
+          wakeLockWanted = false;
+          if (wakeLockSentinel) { try { await wakeLockSentinel.release(); } catch (e) {} wakeLockSentinel = null; }
+          updateWakeLockBtn();
+          showToast('Ekran kilidi normale döndü');
+        } else {
+          wakeLockWanted = true;
+          const ok = await acquireWakeLock(false);
+          if (ok) showToast('Antrenman boyunca ekran açık kalacak');
+          else wakeLockWanted = false;
+        }
+      }
+
+      // ==================== SURGICAL WORKOUT UI UPDATES (ZERO FLICKER / ZERO KEYBOARD CLOSE) ====================
+      function updateWorkoutSummaryBar() {
+        const dw = getDayWorkout(selectedDate);
+        const stats = getWorkoutStats(dw);
+        document.getElementById('wkDoneSets').textContent = stats.done;
+        document.getElementById('wkTotalSets').textContent = stats.total;
+        document.getElementById('wkTotalVol').textContent = `${stats.vol.toLocaleString('tr-TR')} kg`;
+      }
+
+      function updateSetRowUI(exIdx, sIdx) {
+        const dw = getDayWorkout(selectedDate);
+        const ex = dw.exercises?.[exIdx];
+        const st = ex?.sets?.[sIdx];
+        if (!ex || !st) return;
+
+        const row = document.getElementById(`setrow-${exIdx}-${sIdx}`);
+        if (!row) return;
+        row.classList.toggle('set-row-done', !!st.done);
+
+        // Type badge
+        const typeBtn = row.querySelector('[data-cycle-type]');
+        if (typeBtn) {
+          const tLbl = st.type === 'I' ? 'I' : st.type === 'D' ? 'D' : st.type === 'T' ? 'T' : String(sIdx + 1);
+          const tCls = st.type === 'I' ? 'bg-amber-500/20 text-amber-400' : st.type === 'D' ? 'bg-purple-500/20 text-purple-400' : st.type === 'T' ? 'bg-rose-500/20 text-rose-400' : 'surface-elev text-zinc-400';
+          typeBtn.textContent = tLbl;
+          typeBtn.className = `col-span-2 h-10 rounded-xl text-xs font-black ${tCls}`;
+        }
+
+        // Inputs (only update value if not actively focused to avoid cursor jumps)
+        const wInp = row.querySelector('[data-field="weight"]');
+        const rInp = row.querySelector('[data-field="reps"]');
+        if (wInp && document.activeElement !== wInp) wInp.value = st.weight;
+        if (rInp && document.activeElement !== rInp) rInp.value = st.reps;
+
+        // RIR button
+        const rirBtn = row.querySelector('[data-cycle-rir]');
+        if (rirBtn) rirBtn.textContent = st.rir !== '' ? st.rir : '—';
+
+        // Check button
+        const chkBtn = row.querySelector('[data-check-set]');
+        if (chkBtn) {
+          chkBtn.className = `col-span-2 h-10 rounded-xl font-black text-sm flex items-center justify-center transition ${st.done ? 'btn-volt' : 'surface-elev text-zinc-400'}`;
+          chkBtn.textContent = st.done && st.isPR ? '🏆' : '✓';
+        }
+        updateWorkoutSummaryBar();
       }
 
       // ==================== RENDER: TODAY ====================
@@ -1229,11 +1379,13 @@
         const monDate = addDaysISO(selectedDate, -monIdx);
         const strip = document.getElementById('weekStripGrid');
         strip.innerHTML = '';
+        let weekWkCount = 0;
         for (let i = 0; i < 7; i++) {
           const iso = addDaysISO(monDate, i);
           const isSel = iso === selectedDate;
           const dw = state.workouts[iso];
-          const hasWk = dw && (dw.completed || getWorkoutStats(dw).done > 0);
+          const hasWk = dw && !dw.isOffDay && (dw.completed || getWorkoutStats(dw).done > 0);
+          if (hasWk) weekWkCount++;
           const hasCar = (state.cardio[iso] || []).length > 0;
           const hasW = state.weightLogs.some(x => x.date === iso);
           const btn = document.createElement('button');
@@ -1248,10 +1400,12 @@
               ${hasW ? `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>` : ''}
             </div>
           `;
-          btn.addEventListener('click', () => { selectedDate = iso; renderAll(); });
+          btn.addEventListener('click', () => selectDateSafe(iso));
           strip.appendChild(btn);
         }
+        document.getElementById('weekWorkoutCountBadge').textContent = `Bu hafta: ${weekWkCount} gün`;
 
+        // Monthly Calendar
         const yr = calMonthDate.getFullYear(), mo = calMonthDate.getMonth();
         document.getElementById('calMonthTitle').textContent = `${MONTHS_TR[mo]} ${yr}`;
         const firstDay = new Date(yr, mo, 1).getDay();
@@ -1264,17 +1418,18 @@
           const iso = `${yr}-${String(mo + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
           const isSel = iso === selectedDate;
           const dw = state.workouts[iso];
-          const hasWk = dw && (dw.completed || getWorkoutStats(dw).done > 0);
+          const hasWk = dw && !dw.isOffDay && (dw.completed || getWorkoutStats(dw).done > 0);
           const hasCar = (state.cardio[iso] || []).length > 0;
           const hasW = state.weightLogs.some(x => x.date === iso);
           const b = document.createElement('button');
           b.type = 'button';
           b.className = `h-9 rounded-xl flex flex-col items-center justify-center text-xs font-bold tabular ${isSel ? 'btn-volt' : 'hover:bg-black/5 dark:hover:bg-white/5'}`;
           b.innerHTML = `<span>${d}</span><div class="flex gap-0.5 mt-0.5 h-1">${hasWk ? `<span class="w-1 h-1 rounded-full ${isSel ? 'bg-black' : 'bg-[#CCFF00]'}"></span>` : ''}${hasCar ? '<span class="w-1 h-1 rounded-full bg-orange-500"></span>' : ''}${hasW ? '<span class="w-1 h-1 rounded-full bg-rose-500"></span>' : ''}</div>`;
-          b.addEventListener('click', () => { selectedDate = iso; renderAll(); });
+          b.addEventListener('click', () => selectDateSafe(iso));
           mGrid.appendChild(b);
         }
 
+        // Hero Card
         const dw = getDayWorkout(selectedDate);
         const dayMap = { 0: 'pazartesi', 1: 'sali', 4: 'cuma', 5: 'cumartesi' };
         const suggested = FIXED_PROGRAMS[dayMap[monIdx]];
@@ -1319,8 +1474,9 @@
         const todayWLog = state.weightLogs.find(x => x.date === selectedDate);
         const latestW = getLatestWeight();
         const inpW = document.getElementById('homeWeightInput');
-        if (todayWLog) inpW.value = todayWLog.weight;
-        else if (!inpW.value && latestW) inpW.value = latestW;
+        if (document.activeElement !== inpW) {
+          inpW.value = todayWLog ? todayWLog.weight : (latestW || '');
+        }
 
         const sortedW = [...state.weightLogs].sort((a, b) => a.date.localeCompare(b.date));
         if (sortedW.length >= 2) {
@@ -1360,13 +1516,12 @@
         dw.exercises = tpl.exercises.map(e => ({
           group: e.group, name: e.name, video: e.video, weightMode: e.weightMode || 'kg', supersetWithNext: false,
           sets: [
-            { weight: '', reps: '', type: 'N', rir: '', done: false },
-            { weight: '', reps: '', type: 'N', rir: '', done: false },
-            { weight: '', reps: '', type: 'N', rir: '', done: false }
+            { weight: '', reps: '', type: 'N', rir: '', done: false, isPR: false },
+            { weight: '', reps: '', type: 'N', rir: '', done: false, isPR: false },
+            { weight: '', reps: '', type: 'N', rir: '', done: false, isPR: false }
           ]
         }));
         programDrawerOpen = false;
-        sessionPRCount = 0;
         saveState();
         renderAll();
         showToast(`${tpl.title} yüklendi!`);
@@ -1381,11 +1536,8 @@
         document.getElementById('wkPanel-cardio').classList.toggle('hidden', activeWkSub !== 'cardio');
 
         const dw = getDayWorkout(selectedDate);
-        const stats = getWorkoutStats(dw);
         document.getElementById('wkTitleInput').value = dw.title || '';
-        document.getElementById('wkDoneSets').textContent = stats.done;
-        document.getElementById('wkTotalSets').textContent = stats.total;
-        document.getElementById('wkTotalVol').textContent = `${stats.vol.toLocaleString('tr-TR')} kg`;
+        updateWorkoutSummaryBar();
         if (!swRunning) { swSec = dw.durationSec || 0; updateStopwatchUI(); }
 
         const hasEx = dw.exercises && dw.exercises.length > 0;
@@ -1405,10 +1557,10 @@
             const t = state.customTemplates[Number(e.currentTarget.dataset.loadCtpl)];
             if (!t) return;
             const d = ensureDayWorkout(selectedDate);
-            d.isOffDay = false; d.title = t.title;
+            d.isOffDay = false; d.title = t.title; d.completed = false;
             d.exercises = t.exercises.map(ex => ({
               group: ex.group, name: ex.name, video: ex.video || '', weightMode: ex.weightMode || 'kg', supersetWithNext: false,
-              sets: Array.from({ length: ex.setCount || 3 }, () => ({ weight: '', reps: '', type: 'N', rir: '', done: false }))
+              sets: Array.from({ length: ex.setCount || 3 }, () => ({ weight: '', reps: '', type: 'N', rir: '', done: false, isPR: false }))
             }));
             programDrawerOpen = false;
             saveState(); renderAll(); showToast(`${t.title} yüklendi!`);
@@ -1472,7 +1624,7 @@
               <span class="col-span-2">Onay</span>
             </div>
 
-            <!-- Set Rows with Ghost Placeholders -->
+            <!-- Set Rows with Ghost Placeholders & Native iOS Keypads -->
             <div class="space-y-1.5">
               ${ex.sets.map((s, sIdx) => {
                 const ghostW = prev && prev.sets[sIdx] && prev.sets[sIdx].weight ? prev.sets[sIdx].weight : '';
@@ -1481,12 +1633,12 @@
                 const tCls = s.type === 'I' ? 'bg-amber-500/20 text-amber-400' : s.type === 'D' ? 'bg-purple-500/20 text-purple-400' : s.type === 'T' ? 'bg-rose-500/20 text-rose-400' : 'surface-elev text-zinc-400';
                 const wPh = ex.weightMode === 'bw' ? 'VA' : (ghostW || '—');
                 return `
-                <div class="grid grid-cols-12 gap-1.5 items-center p-1 rounded-2xl transition ${s.done ? 'bg-[#CCFF00]/10 dark:bg-[#CCFF00]/10' : ''}">
+                <div id="setrow-${exIdx}-${sIdx}" class="grid grid-cols-12 gap-1.5 items-center p-1 rounded-2xl transition ${s.done ? 'set-row-done' : ''}">
                   <button type="button" data-cycle-type="${exIdx}:${sIdx}" class="col-span-2 h-10 rounded-xl text-xs font-black ${tCls}">${tLbl}</button>
-                  <input type="number" step="0.5" min="0" value="${s.weight}" placeholder="${wPh}" ${ex.weightMode === 'bw' ? 'disabled' : ''} data-set-inp="weight:${exIdx}:${sIdx}" class="col-span-3 h-10 rounded-xl surface-elev text-center text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00] ${ex.weightMode === 'bw' ? 'opacity-60' : ''}" />
-                  <input type="number" step="1" min="0" value="${s.reps}" placeholder="${ghostR || '—'}" data-set-inp="reps:${exIdx}:${sIdx}" class="col-span-3 h-10 rounded-xl surface-elev text-center text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00]" />
+                  <input type="number" inputmode="decimal" enterkeyhint="next" step="0.5" min="0" value="${s.weight}" placeholder="${wPh}" ${ex.weightMode === 'bw' ? 'disabled' : ''} data-field="weight" data-set-inp="weight:${exIdx}:${sIdx}" class="col-span-3 h-10 rounded-xl surface-elev text-center text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00] ${ex.weightMode === 'bw' ? 'opacity-60' : ''}" />
+                  <input type="number" inputmode="numeric" enterkeyhint="done" step="1" min="0" value="${s.reps}" placeholder="${ghostR || '—'}" data-field="reps" data-set-inp="reps:${exIdx}:${sIdx}" class="col-span-3 h-10 rounded-xl surface-elev text-center text-sm font-black tabular focus:outline-none focus:ring-2 focus:ring-[#CCFF00]" />
                   <button type="button" data-cycle-rir="${exIdx}:${sIdx}" class="col-span-2 h-10 rounded-xl surface-elev text-[11px] font-extrabold text-zinc-400 tabular">${s.rir !== '' ? s.rir : '—'}</button>
-                  <button type="button" data-check-set="${exIdx}:${sIdx}" data-gw="${ghostW}" data-gr="${ghostR}" class="col-span-2 h-10 rounded-xl font-black text-sm flex items-center justify-center transition ${s.done ? 'btn-volt' : 'surface-elev text-zinc-400'}">✓</button>
+                  <button type="button" data-check-set="${exIdx}:${sIdx}" data-gw="${ghostW}" data-gr="${ghostR}" class="col-span-2 h-10 rounded-xl font-black text-sm flex items-center justify-center transition ${s.done ? 'btn-volt' : 'surface-elev text-zinc-400'}">${s.done && s.isPR ? '🏆' : '✓'}</button>
                 </div>`;
               }).join('')}
             </div>
@@ -1502,6 +1654,7 @@
           cont.appendChild(card);
         });
 
+        // Bind Surgical Events
         cont.querySelectorAll('[data-play-vid]').forEach(b => b.addEventListener('click', e => {
           const ex = ensureDayWorkout(selectedDate).exercises[Number(e.currentTarget.dataset.playVid)];
           if (ex) openVideoModal(ex.name, ex.video);
@@ -1513,28 +1666,55 @@
           activeSheetExIdx = Number(e.currentTarget.dataset.openSheet);
           const ex = ensureDayWorkout(selectedDate).exercises[activeSheetExIdx];
           document.getElementById('sheetExName').textContent = ex.name;
-          const m = document.getElementById('exActionSheet');
-          m.classList.remove('hidden'); m.classList.add('flex');
+          openModal('exActionSheet');
         }));
+
+        // Surgical: Cycle Set Type without full re-render
         cont.querySelectorAll('[data-cycle-type]').forEach(b => b.addEventListener('click', e => {
           const [exI, sI] = e.currentTarget.dataset.cycleType.split(':').map(Number);
           const st = ensureDayWorkout(selectedDate).exercises[exI].sets[sI];
           const ord = ['N','I','D','T'];
           st.type = ord[(ord.indexOf(st.type || 'N') + 1) % ord.length];
-          saveState(); renderWorkout();
+          saveState();
+          updateSetRowUI(exI, sI);
         }));
+
+        // Surgical: Cycle RIR without full re-render
         cont.querySelectorAll('[data-cycle-rir]').forEach(b => b.addEventListener('click', e => {
           const [exI, sI] = e.currentTarget.dataset.cycleRir.split(':').map(Number);
           const st = ensureDayWorkout(selectedDate).exercises[exI].sets[sI];
           const ord = ['', '0', '1', '2', '3+'];
           st.rir = ord[(ord.indexOf(String(st.rir ?? '')) + 1) % ord.length];
-          saveState(); renderWorkout();
+          saveState();
+          updateSetRowUI(exI, sI);
         }));
-        cont.querySelectorAll('[data-set-inp]').forEach(inp => inp.addEventListener('change', e => {
-          const [field, exI, sI] = e.target.dataset.setInp.split(':');
-          ensureDayWorkout(selectedDate).exercises[Number(exI)].sets[Number(sI)][field] = e.target.value;
-          saveState(); renderWorkout();
-        }));
+
+        // Surgical: Input live-save + Select-All on focus + Enter-to-Next-Field (ZERO re-render!)
+        cont.querySelectorAll('[data-set-inp]').forEach(inp => {
+          inp.addEventListener('focus', e => {
+            try { e.target.select(); } catch (err) {}
+          });
+          inp.addEventListener('input', e => {
+            const [field, exI, sI] = e.target.dataset.setInp.split(':');
+            ensureDayWorkout(selectedDate).exercises[Number(exI)].sets[Number(sI)][field] = e.target.value;
+            saveStateDebounced();
+            updateWorkoutSummaryBar();
+          });
+          inp.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              const [field, exI, sI] = e.target.dataset.setInp.split(':');
+              if (field === 'weight') {
+                e.preventDefault();
+                const repEl = document.querySelector(`#setrow-${exI}-${sI} [data-field="reps"]`);
+                if (repEl) repEl.focus();
+              } else {
+                e.target.blur();
+              }
+            }
+          });
+        });
+
+        // Surgical: Check Set without full re-render + Idempotent PR check
         cont.querySelectorAll('[data-check-set]').forEach(b => b.addEventListener('click', e => {
           const btn = e.currentTarget;
           const [exI, sI] = btn.dataset.checkSet.split(':').map(Number);
@@ -1546,42 +1726,61 @@
             if (st.reps === '' && btn.dataset.gr) st.reps = btn.dataset.gr;
           }
           st.done = !st.done;
-          if (st.done) {
+          if (!st.done) {
+            st.isPR = false;
+          } else {
             if (!swRunning) toggleStopwatch();
             if (st.type !== 'I' && Number(st.weight) > 0 && Number(st.reps) > 0) {
               const prevBest = getExerciseBestBefore(ex.name, selectedDate);
               const wt = Number(st.weight), rp = Number(st.reps), e1 = calc1RM(wt, rp);
               if (prevBest.maxW > 0 && wt > prevBest.maxW) {
-                sessionPRCount++;
+                st.isPR = true;
                 showToast(`🏆 YENİ AĞIRLIK PR! ${ex.name}: ${wt} kg`);
               } else if (prevBest.bestRepAtWeight[wt] && rp > prevBest.bestRepAtWeight[wt]) {
-                sessionPRCount++;
+                st.isPR = true;
                 showToast(`🔥 YENİ TEKRAR PR! ${wt} kg × ${rp}`);
               } else if (prevBest.max1RM > 0 && e1 > prevBest.max1RM) {
-                sessionPRCount++;
+                st.isPR = true;
                 showToast(`⚡ YENİ 1RM PR! ${e1} kg`);
               }
             }
             if (!ex.supersetWithNext) startRestTimer();
           }
-          saveState(); renderWorkout();
+          saveState();
+          updateSetRowUI(exI, sI);
         }));
+
         cont.querySelectorAll('[data-add-set]').forEach(b => b.addEventListener('click', e => {
           const ex = ensureDayWorkout(selectedDate).exercises[Number(e.currentTarget.dataset.addSet)];
           const last = ex.sets[ex.sets.length - 1] || { weight: '', reps: '' };
-          ex.sets.push({ weight: last.weight, reps: last.reps, type: 'N', rir: '', done: false });
+          ex.sets.push({ weight: last.weight, reps: last.reps, type: 'N', rir: '', done: false, isPR: false });
           saveState(); renderWorkout();
         }));
         cont.querySelectorAll('[data-rem-set]').forEach(b => b.addEventListener('click', e => {
-          const ex = ensureDayWorkout(selectedDate).exercises[Number(e.currentTarget.dataset.remSet)];
-          if (ex.sets.length > 1) { ex.sets.pop(); saveState(); renderWorkout(); }
+          const exIdx = Number(e.currentTarget.dataset.remSet);
+          const ex = ensureDayWorkout(selectedDate).exercises[exIdx];
+          if (ex.sets.length > 1) {
+            const removed = ex.sets.pop();
+            saveState(); renderWorkout();
+            showToast('Son set silindi', () => {
+              ex.sets.push(removed);
+              saveState(); renderWorkout();
+            });
+          }
         }));
         cont.querySelectorAll('[data-copy-set1]').forEach(b => b.addEventListener('click', e => {
-          const ex = ensureDayWorkout(selectedDate).exercises[Number(e.currentTarget.dataset.copySet1)];
+          const exIdx = Number(e.currentTarget.dataset.copySet1);
+          const ex = ensureDayWorkout(selectedDate).exercises[exIdx];
           if (!ex.sets.length) return;
           const s0 = ex.sets[0];
-          ex.sets.forEach((s, i) => { if (i > 0) { s.weight = s0.weight; s.reps = s0.reps; } });
-          saveState(); renderWorkout(); showToast('1. set tüm setlere kopyalandı');
+          ex.sets.forEach((s, i) => {
+            if (i > 0) {
+              if (ex.weightMode !== 'bw') s.weight = s0.weight;
+              s.reps = s0.reps;
+              updateSetRowUI(exIdx, i);
+            }
+          });
+          saveState(); showToast('1. set tüm setlere kopyalandı');
         }));
 
         renderCardio();
@@ -1602,6 +1801,10 @@
         const min = Number(document.getElementById('cardioMinInput').value) || 0;
         const inc = Number(document.getElementById('cardioIncInput').value) || 0;
         const bw = getLatestWeight() || 75;
+        document.querySelectorAll('.cmin-btn').forEach(b => {
+          const act = Number(b.dataset.cmin) === min;
+          b.className = act ? 'cmin-btn py-2 rounded-xl btn-volt text-xs font-extrabold' : 'cmin-btn py-2 rounded-xl surface-elev text-xs font-extrabold';
+        });
         if (min <= 0) { document.getElementById('cardioKcalInput').value = ''; return; }
         const baseMet = { 'Eğimli Yürüyüş': 6.0, 'Koşu Bandı': 8.5, 'Bisiklet': 7.0, 'Eliptik': 6.8, 'Merdiven': 8.8, 'Kürek': 8.0 }[selectedCardioType] || 6.5;
         const intMult = selectedCardioInt === 'Hafif' ? 0.8 : selectedCardioInt === 'Yüksek' ? 1.25 : 1.0;
@@ -1631,7 +1834,7 @@
             <div class="flex items-center justify-between p-3 rounded-2xl surface-elev text-xs">
               <div>
                 <p class="font-extrabold">${esc(c.type)} <span class="text-zinc-400 font-semibold">• ${c.min} dk (${esc(c.intensity)})</span></p>
-                ${c.incline ? `<p class="text-[10px] text-zinc-400">Eğim: %${c.incline}</p>` : ''}
+                ${Number(c.incline) > 0 ? `<p class="text-[10px] text-zinc-400">Eğim: %${esc(c.incline)}</p>` : ''}
               </div>
               <div class="flex items-center gap-2.5">
                 <span class="font-black text-orange-500 tabular">${c.kcal} kcal</span>
@@ -1640,8 +1843,13 @@
             </div>
           `).join('');
           box.querySelectorAll('[data-del-car]').forEach(b => b.addEventListener('click', e => {
-            state.cardio[selectedDate].splice(Number(e.currentTarget.dataset.delCar), 1);
+            const idx = Number(e.currentTarget.dataset.delCar);
+            const removed = state.cardio[selectedDate].splice(idx, 1)[0];
             saveState(); renderAll();
+            showToast('Kardiyo kaydı silindi', () => {
+              state.cardio[selectedDate].splice(idx, 0, removed);
+              saveState(); renderAll();
+            });
           }));
         }
       }
@@ -1706,8 +1914,15 @@
           if (sup) { sup.stock += 30; saveState(); renderHydration(); }
         }));
         box.querySelectorAll('[data-del-supp]').forEach(b => b.addEventListener('click', e => {
-          state.supplements = state.supplements.filter(x => x.id !== e.currentTarget.dataset.delSupp);
+          const id = e.currentTarget.dataset.delSupp;
+          const idx = state.supplements.findIndex(x => x.id === id);
+          if (idx === -1) return;
+          const removed = state.supplements.splice(idx, 1)[0];
           saveState(); renderAll();
+          showToast(`${removed.name} silindi`, () => {
+            state.supplements.splice(idx, 0, removed);
+            saveState(); renderAll();
+          });
         }));
       }
 
@@ -1772,7 +1987,7 @@
       function updateIfTool() {
         const lbl = document.getElementById('ifStatusLabel');
         if (!state.fastingStart) { lbl.textContent = 'Oruç kapalı'; return; }
-        const diff = Date.now() - state.fastingStart;
+        const diff = Math.max(0, Date.now() - state.fastingStart);
         const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000);
         const tgt = Number(document.getElementById('ifProtoSelect').value) || 16;
         lbl.textContent = `Aktif: ${h} sa ${m} dk / ${tgt} sa`;
@@ -1844,8 +2059,11 @@
           </div>
         `).join('');
         hist.querySelectorAll('[data-del-w]').forEach(b => b.addEventListener('click', e => {
-          state.weightLogs = state.weightLogs.filter(x => x.date !== e.currentTarget.dataset.delW);
+          const dt = e.currentTarget.dataset.delW;
+          const removed = state.weightLogs.find(x => x.date === dt);
+          state.weightLogs = state.weightLogs.filter(x => x.date !== dt);
           saveState(); renderAll();
+          if (removed) showToast('Kilo kaydı silindi', () => { state.weightLogs.push(removed); saveState(); renderAll(); });
         }));
 
         const photos = [...state.photos].sort((a, b) => a.date.localeCompare(b.date));
@@ -1872,8 +2090,11 @@
             </div>
           `).join('');
           strip.querySelectorAll('[data-del-ph]').forEach(b => b.addEventListener('click', e => {
-            state.photos = state.photos.filter(x => x.id !== e.currentTarget.dataset.delPh);
+            const id = e.currentTarget.dataset.delPh;
+            const removed = state.photos.find(x => x.id === id);
+            state.photos = state.photos.filter(x => x.id !== id);
             saveState(); renderWeightAndPhotos();
+            if (removed) showToast('Fotoğraf silindi', () => { state.photos.push(removed); saveState(); renderWeightAndPhotos(); });
           }));
         }
       }
@@ -1987,15 +2208,14 @@
         document.getElementById('videoModalTitle').textContent = exName;
         document.getElementById('videoUrlInput').value = vid || '';
         setVideoIframe(vid);
-        const m = document.getElementById('videoModal');
-        m.classList.remove('hidden'); m.classList.add('flex');
+        openModal('videoModal');
       }
       function setVideoIframe(url) {
         const id = extractYouTubeId(url);
         const ifr = document.getElementById('videoIframe');
         const emp = document.getElementById('videoEmptyMsg');
         if (id) {
-          ifr.src = `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
+          ifr.src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1`;
           ifr.classList.remove('hidden'); emp.classList.add('hidden');
         } else {
           ifr.src = ''; ifr.classList.add('hidden'); emp.classList.remove('hidden');
@@ -2003,8 +2223,7 @@
       }
       function closeVideoModal() {
         document.getElementById('videoIframe').src = '';
-        const m = document.getElementById('videoModal');
-        m.classList.add('hidden'); m.classList.remove('flex');
+        closeModal('videoModal');
       }
 
       function openExPicker(mode, swapIdx, filterGroup) {
@@ -2015,8 +2234,7 @@
         document.getElementById('exGroupFilter').value = filterGroup || 'ALL';
         document.getElementById('exSearchInput').value = '';
         renderExCatalog();
-        const m = document.getElementById('exPickerModal');
-        m.classList.remove('hidden'); m.classList.add('flex');
+        openModal('exPickerModal');
       }
       function renderExCatalog() {
         const q = (document.getElementById('exSearchInput').value || '').toLowerCase().trim();
@@ -2046,15 +2264,14 @@
             dw.exercises.push({
               group: item.group, name: item.name, video: item.video || '', weightMode: item.weightMode || 'kg', supersetWithNext: false,
               sets: [
-                { weight: '', reps: '', type: 'N', rir: '', done: false },
-                { weight: '', reps: '', type: 'N', rir: '', done: false },
-                { weight: '', reps: '', type: 'N', rir: '', done: false }
+                { weight: '', reps: '', type: 'N', rir: '', done: false, isPR: false },
+                { weight: '', reps: '', type: 'N', rir: '', done: false, isPR: false },
+                { weight: '', reps: '', type: 'N', rir: '', done: false, isPR: false }
               ]
             });
             showToast(`${item.name} eklendi`);
           }
-          const m = document.getElementById('exPickerModal');
-          m.classList.add('hidden'); m.classList.remove('flex');
+          closeModal('exPickerModal');
           saveState(); renderAll();
         }));
       }
@@ -2086,17 +2303,54 @@
           saveState(); renderAll();
         });
         document.getElementById('btnHeaderToday').addEventListener('click', () => {
-          selectedDate = todayISO(); calMonthDate = new Date(); renderAll();
+          calMonthDate = new Date();
+          selectDateSafe(todayISO());
+        });
+        document.getElementById('btnToastUndo').addEventListener('click', () => {
+          if (undoCallback) {
+            const fn = undoCallback;
+            undoCallback = null;
+            document.getElementById('toastEl').classList.add('hidden');
+            fn();
+          }
         });
 
+        // Visibility WakeLock re-acquire + IF live tick
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && wakeLockWanted && !wakeLockSentinel) {
+            acquireWakeLock(true);
+          }
+        });
+        setInterval(() => {
+          if (state.fastingStart && activeTab === 'tools') updateIfTool();
+        }, 30000);
+
+        // Backdrop click & Escape to close all modals
+        ['videoModal','exPickerModal','exActionSheet','exHistoryModal','summaryModal'].forEach(id => {
+          document.getElementById(id).addEventListener('click', e => {
+            if (e.target.id === id) {
+              if (id === 'videoModal') closeVideoModal();
+              else closeModal(id);
+            }
+          });
+        });
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') {
+            closeVideoModal();
+            ['exPickerModal','exActionSheet','exHistoryModal','summaryModal'].forEach(closeModal);
+          }
+        });
+
+        // Today Calendar
         document.getElementById('btnToggleMonthCal').addEventListener('click', () => {
           const w = document.getElementById('monthCalWrap');
-          const open = w.classList.toggle('hidden');
-          document.getElementById('calToggleText').textContent = open ? 'Aylık Takvim' : 'Gizle';
+          const closed = w.classList.toggle('hidden');
+          document.getElementById('calToggleText').textContent = closed ? 'Aylık Takvim' : 'Gizle';
         });
         document.getElementById('btnCalPrevMonth').addEventListener('click', () => { calMonthDate.setMonth(calMonthDate.getMonth() - 1); renderToday(); });
         document.getElementById('btnCalNextMonth').addEventListener('click', () => { calMonthDate.setMonth(calMonthDate.getMonth() + 1); renderToday(); });
 
+        // Today Hero & Tiles
         document.getElementById('btnTodayOffDay').addEventListener('click', () => {
           const dw = ensureDayWorkout(selectedDate);
           dw.isOffDay = !dw.isOffDay;
@@ -2118,6 +2372,7 @@
         document.getElementById('tileGoSupp').addEventListener('click', () => switchTab('hydration'));
         document.getElementById('btnHomeOpenBmi').addEventListener('click', () => switchTab('tools'));
 
+        // Quick Morning Weight
         document.getElementById('btnHomeWeightMinus').addEventListener('click', () => {
           const inp = document.getElementById('homeWeightInput');
           inp.value = Math.max(30, Math.round(((Number(inp.value) || 75) - 0.1) * 10) / 10).toFixed(1);
@@ -2128,12 +2383,13 @@
         });
         document.getElementById('btnHomeWeightSave').addEventListener('click', () => {
           const val = Number(document.getElementById('homeWeightInput').value);
-          if (!val || val < 30) { showToast('Geçerli bir kilo gir'); return; }
+          if (!val || val < 30 || val > 250) { showToast('Geçerli bir kilo gir (30-250)'); return; }
           state.weightLogs = state.weightLogs.filter(x => x.date !== selectedDate);
           state.weightLogs.push({ date: selectedDate, weight: val });
           saveState(); renderAll(); showToast(`${val.toFixed(1)} kg kaydedildi`);
         });
 
+        // Water & Salt & Supplements
         document.querySelectorAll('[data-quick-water]').forEach(b => b.addEventListener('click', e => addWater(Number(e.currentTarget.dataset.quickWater))));
         document.getElementById('btnWaterUndo').addEventListener('click', () => {
           if (state.water[selectedDate] && state.water[selectedDate].length) {
@@ -2155,13 +2411,22 @@
           saveState(); renderAll();
         });
 
+        // Workout Controls
         document.querySelectorAll('.wk-sub-btn').forEach(b => b.addEventListener('click', e => { activeWkSub = e.currentTarget.dataset.wkSub; renderWorkout(); }));
-        document.getElementById('wkTitleInput').addEventListener('change', e => { ensureDayWorkout(selectedDate).title = e.target.value.trim(); saveState(); });
+        document.getElementById('wkTitleInput').addEventListener('input', e => { ensureDayWorkout(selectedDate).title = e.target.value; saveStateDebounced(); });
         document.getElementById('btnStopwatchToggle').addEventListener('click', toggleStopwatch);
+        document.getElementById('btnManualRest').addEventListener('click', () => startRestTimer());
         document.getElementById('btnWakeLock').addEventListener('click', toggleWakeLock);
         document.getElementById('btnToggleProgramDrawer').addEventListener('click', () => { programDrawerOpen = !programDrawerOpen; renderWorkout(); });
         document.getElementById('btnOpenAddExModal').addEventListener('click', () => openExPicker('add', null, 'ALL'));
         document.querySelectorAll('[data-load-prog]').forEach(b => b.addEventListener('click', e => loadProgramTemplate(e.currentTarget.dataset.loadProg)));
+        document.getElementById('btnNewBlankWorkout').addEventListener('click', () => {
+          const dw = ensureDayWorkout(selectedDate);
+          dw.isOffDay = false; dw.completed = false; dw.title = 'Özel Antrenman'; dw.exercises = [];
+          programDrawerOpen = false;
+          saveState(); renderAll();
+          openExPicker('add', null, 'ALL');
+        });
         document.getElementById('btnWkOffDay').addEventListener('click', () => {
           const dw = ensureDayWorkout(selectedDate); dw.isOffDay = !dw.isOffDay; saveState(); renderAll();
         });
@@ -2178,31 +2443,33 @@
         });
         document.getElementById('btnFinishWorkout').addEventListener('click', () => {
           const dw = ensureDayWorkout(selectedDate);
-          if (swRunning) toggleStopwatch();
+          const st = getWorkoutStats(dw);
+          if (st.total === 0) { showToast('Önce en az 1 hareket ekle'); return; }
+          if (st.done === 0 && !confirm('Henüz hiçbir seti onaylamadın. Yine de bitirilsin mi?')) return;
+          if (swRunning) stopStopwatch();
           dw.completed = true;
           dw.durationSec = swSec;
           saveState();
-          const st = getWorkoutStats(dw);
           document.getElementById('sumTitle').textContent = dw.title || 'Antrenman Özeti';
           document.getElementById('sumDuration').textContent = `${Math.max(1, Math.round(swSec / 60))} dk`;
           document.getElementById('sumVolume').textContent = `${st.vol.toLocaleString('tr-TR')} kg`;
           document.getElementById('sumSets').textContent = `${st.done}/${st.total}`;
-          document.getElementById('sumPRs').textContent = String(sessionPRCount);
-          const m = document.getElementById('summaryModal');
-          m.classList.remove('hidden'); m.classList.add('flex');
+          document.getElementById('sumPRs').textContent = String(st.prs);
+          openModal('summaryModal');
           renderAll();
         });
-        document.getElementById('btnCloseSummary').addEventListener('click', () => {
-          const m = document.getElementById('summaryModal');
-          m.classList.add('hidden'); m.classList.remove('flex');
-        });
+        document.getElementById('btnCloseSummary').addEventListener('click', () => closeModal('summaryModal'));
 
-        document.getElementById('btnRestMinus').addEventListener('click', () => { restSec = Math.max(5, restSec - 15); updateRestClock(); });
-        document.getElementById('btnRestPlus').addEventListener('click', () => { restSec += 15; updateRestClock(); });
+        // Rest Timer Controls
+        document.getElementById('btnRestPause').addEventListener('click', () => { restPaused = !restPaused; updateRestUI(); });
+        document.getElementById('btnRestMinus').addEventListener('click', () => { restSec = Math.max(5, restSec - 15); updateRestUI(); });
+        document.getElementById('btnRestPlus').addEventListener('click', () => { restSec += 15; updateRestUI(); });
         document.getElementById('btnRestSkip').addEventListener('click', () => {
-          clearInterval(restInt); document.getElementById('floatingRestBar').classList.add('hidden');
+          clearInterval(restInt); restPaused = false;
+          document.getElementById('floatingRestBar').classList.add('hidden');
         });
 
+        // Cardio Controls
         document.querySelectorAll('.ctype-btn').forEach(b => b.addEventListener('click', e => { selectedCardioType = e.currentTarget.dataset.ctype; estimateCardioKcal(); renderCardio(); }));
         document.querySelectorAll('.cint-btn').forEach(b => b.addEventListener('click', e => { selectedCardioInt = e.currentTarget.dataset.cint; estimateCardioKcal(); renderCardio(); }));
         document.querySelectorAll('[data-cmin]').forEach(b => b.addEventListener('click', e => { document.getElementById('cardioMinInput').value = e.currentTarget.dataset.cmin; estimateCardioKcal(); }));
@@ -2211,33 +2478,51 @@
         document.getElementById('btnAddCardio').addEventListener('click', () => {
           const min = Number(document.getElementById('cardioMinInput').value);
           if (!min || min <= 0) { showToast('Süre (dk) gir'); return; }
-          const inc = document.getElementById('cardioIncInput').value;
+          const inc = document.getElementById('cardioIncInput').value.trim();
           const kcal = Number(document.getElementById('cardioKcalInput').value) || 0;
           if (!state.cardio[selectedDate]) state.cardio[selectedDate] = [];
           state.cardio[selectedDate].push({ type: selectedCardioType, min, intensity: selectedCardioInt, incline: inc, kcal });
           document.getElementById('cardioMinInput').value = '';
+          document.getElementById('cardioIncInput').value = '';
           document.getElementById('cardioKcalInput').value = '';
+          estimateCardioKcal();
           saveState(); renderAll(); showToast('Kardiyo kaydedildi!');
         });
 
-        const closeSheet = () => { const m = document.getElementById('exActionSheet'); m.classList.add('hidden'); m.classList.remove('flex'); };
-        document.getElementById('btnCloseActionSheet').addEventListener('click', closeSheet);
-        document.getElementById('exActionSheet').addEventListener('click', e => { if (e.target.id === 'exActionSheet') closeSheet(); });
+        // Action Sheet (•••)
+        document.getElementById('btnCloseActionSheet').addEventListener('click', () => closeModal('exActionSheet'));
         document.querySelectorAll('[data-sheet-act]').forEach(b => b.addEventListener('click', e => {
           const act = e.currentTarget.dataset.sheetAct;
           const dw = ensureDayWorkout(selectedDate);
           const idx = activeSheetExIdx;
           const ex = dw.exercises[idx];
-          closeSheet();
+          closeModal('exActionSheet');
           if (!ex) return;
           if (act === 'video') openVideoModal(ex.name, ex.video);
           else if (act === 'fillPrev') {
             const prev = getPrevSession(ex.name, selectedDate);
             if (!prev) { showToast('Bu hareketin önceki kaydı yok'); return; }
-            ex.sets.forEach((s, i) => { const src = prev.sets[i] || prev.sets[prev.sets.length - 1]; if (src) { s.weight = src.weight; s.reps = src.reps; } });
-            saveState(); renderWorkout(); showToast('Son seans dolduruldu');
+            ex.sets.forEach((s, i) => {
+              const src = prev.sets[i] || prev.sets[prev.sets.length - 1];
+              if (src) {
+                if (ex.weightMode !== 'bw') s.weight = src.weight;
+                s.reps = src.reps;
+                updateSetRowUI(idx, i);
+              }
+            });
+            saveState(); showToast('Son seans dolduruldu');
           } else if (act === 'copySet1') {
-            if (ex.sets.length) { const s0 = ex.sets[0]; ex.sets.forEach((s, i) => { if (i > 0) { s.weight = s0.weight; s.reps = s0.reps; } }); saveState(); renderWorkout(); }
+            if (ex.sets.length) {
+              const s0 = ex.sets[0];
+              ex.sets.forEach((s, i) => {
+                if (i > 0) {
+                  if (ex.weightMode !== 'bw') s.weight = s0.weight;
+                  s.reps = s0.reps;
+                  updateSetRowUI(idx, i);
+                }
+              });
+              saveState(); showToast('1. set tüm setlere kopyalandı');
+            }
           } else if (act === 'weightMode') {
             cycleExerciseWeightMode(idx);
           } else if (act === 'note') {
@@ -2257,7 +2542,7 @@
             document.getElementById('exHistBody').innerHTML = !hist.length
               ? '<p class="text-zinc-400 text-center py-4">Henüz geçmiş kaydı yok.</p>'
               : hist.map(h => `<div class="p-3 rounded-2xl surface-elev space-y-1"><p class="font-extrabold text-zinc-900 dark:text-[#CCFF00]">${h.date}</p><p class="tabular text-zinc-400">${h.sets.map(s => `${s.weight||0}×${s.reps||0}`).join('  •  ')}</p></div>`).join('');
-            const m = document.getElementById('exHistoryModal'); m.classList.remove('hidden'); m.classList.add('flex');
+            openModal('exHistoryModal');
           } else if (act === 'superset') {
             if (idx >= dw.exercises.length - 1) { showToast('Süperset için altında başka hareket olmalı'); return; }
             ex.supersetWithNext = !ex.supersetWithNext;
@@ -2270,10 +2555,16 @@
             [dw.exercises[idx + 1], dw.exercises[idx]] = [dw.exercises[idx], dw.exercises[idx + 1]];
             saveState(); renderWorkout();
           } else if (act === 'delete') {
-            dw.exercises.splice(idx, 1); saveState(); renderWorkout();
+            const removed = dw.exercises.splice(idx, 1)[0];
+            saveState(); renderWorkout();
+            showToast(`${removed.name} silindi`, () => {
+              dw.exercises.splice(idx, 0, removed);
+              saveState(); renderWorkout();
+            });
           }
         }));
 
+        // Modals Close & Catalog
         document.getElementById('btnCloseVideoModal').addEventListener('click', closeVideoModal);
         document.getElementById('btnSaveVideoUrl').addEventListener('click', () => {
           if (!activeVideoEx) return;
@@ -2282,7 +2573,7 @@
           state.exerciseVideos[activeVideoEx] = url;
           saveState(); setVideoIframe(url); renderWorkout(); showToast('Video kaydedildi');
         });
-        document.getElementById('btnCloseExPicker').addEventListener('click', () => { const m = document.getElementById('exPickerModal'); m.classList.add('hidden'); m.classList.remove('flex'); });
+        document.getElementById('btnCloseExPicker').addEventListener('click', () => closeModal('exPickerModal'));
         document.getElementById('exSearchInput').addEventListener('input', renderExCatalog);
         document.getElementById('exGroupFilter').addEventListener('change', renderExCatalog);
         document.getElementById('btnAddCustomEx').addEventListener('click', () => {
@@ -2296,8 +2587,9 @@
           document.getElementById('custExVideo').value = '';
           saveState(); renderExCatalog(); showToast('Hareket listeye eklendi');
         });
-        document.getElementById('btnCloseExHist').addEventListener('click', () => { const m = document.getElementById('exHistoryModal'); m.classList.add('hidden'); m.classList.remove('flex'); });
+        document.getElementById('btnCloseExHist').addEventListener('click', () => closeModal('exHistoryModal'));
 
+        // Tools Listeners
         document.getElementById('toolBmiHeight').addEventListener('input', updateBmiTool);
         document.getElementById('toolBmiWeight').addEventListener('input', updateBmiTool);
         document.getElementById('plateTargetInput').addEventListener('input', updatePlateTool);
@@ -2311,10 +2603,11 @@
         document.getElementById('convTypeSelect').addEventListener('change', updateConvTool);
         document.getElementById('convGramInput').addEventListener('input', updateConvTool);
 
+        // Profile Listeners
         document.querySelectorAll('.prof-sub-btn').forEach(b => b.addEventListener('click', e => { activeProfSub = e.currentTarget.dataset.profSub; renderProfile(); }));
         document.getElementById('btnProfSaveWeight').addEventListener('click', () => {
           const w = Number(document.getElementById('profWeightInput').value);
-          if (!w || w < 30) { showToast('Geçerli bir kilo gir'); return; }
+          if (!w || w < 30 || w > 250) { showToast('Geçerli bir kilo gir (30-250)'); return; }
           const waist = Number(document.getElementById('profWaistInput').value) || '';
           const chest = Number(document.getElementById('profChestInput').value) || '';
           const arm = Number(document.getElementById('profArmInput').value) || '';
@@ -2383,6 +2676,7 @@
         });
         document.getElementById('btnResetAllData').addEventListener('click', () => {
           if (confirm('Tüm antrenman, kilo ve su kayıtların silinecek. Emin misin?')) {
+            if (swRunning) stopStopwatch();
             state = createFreshState(); saveState(); renderAll(); showToast('Tüm veriler sıfırlandı');
           }
         });
